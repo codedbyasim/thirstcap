@@ -1,8 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import { setWorkerUrl } from "maplibre-gl";
 import Map, { Layer, Marker, Source, type MapRef } from "react-map-gl/maplibre";
 import type { SiteId } from "@/lib/sites";
+
+if (typeof window !== "undefined") {
+  setWorkerUrl("/maplibre-gl-worker.js");
+}
 import { SITES } from "@/lib/sites";
 import { SITE_SISTERS, guessSister, wriColor } from "@/lib/sisters";
 import type { CustomSiteInput } from "@/lib/types";
