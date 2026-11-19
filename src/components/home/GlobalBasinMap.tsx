@@ -152,7 +152,7 @@ export function GlobalBasinMap() {
             }}
           />
           <p className="mt-2 px-1 text-[11px] leading-relaxed text-slate-400">
-            Pins use registry latitude and longitude. Color is the registry WRI score. The dashed arc is the model sister site for the selection. Scroll-zoom turns on after you click or focus the map.
+            Basemap is OpenFreeMap (OpenStreetMap data, no API key). Pins use registry latitude and longitude. Color is the registry WRI score. The dashed arc is the model sister site for the selection. Scroll-zoom turns on after you click or focus the map.
           </p>
         </div>
 
