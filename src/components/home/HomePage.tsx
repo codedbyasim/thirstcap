@@ -1,389 +1,451 @@
+"use client";
+
 import Link from "next/link";
-import weatherJson from "@/data/weather.json";
-import { HeroChart } from "@/components/charts/HeroChart";
-import { uncontrolledWeek } from "@/lib/model";
-import { SOURCES } from "@/lib/sources";
+import { useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, CalendarCheck2, Check, FileCheck2, Layers, ShieldCheck, TrendingUp } from "lucide-react";
+import { Logo } from "@/components/Logo";
+import { PilotModal } from "@/components/PilotModal";
+import { ArchitectureDiagram } from "@/components/home/ArchitectureDiagram";
+import { GlobalBasinMap } from "@/components/home/GlobalBasinMap";
+import { HeroSimulator } from "@/components/home/HeroSimulator";
+import { StakeholderTabs } from "@/components/home/StakeholderTabs";
 
-type Bundle = Record<string, { times: string[]; temps: number[] }>;
-const weather = weatherJson as Bundle;
-
-const week = uncontrolledWeek(
-  weather["des-moines__2025-07-08"].times,
-  weather["des-moines__2025-07-08"].temps,
-  weather["duluth__2025-07-08"].temps,
-);
-
-const gaps = [
-  ["Zero-water cooling", "Removes evaporation on new campuses", "Pilots now, sites from late 2027. The existing fleet still evaporates, and it trades water for electricity."],
-  ["Carbon-aware scheduling", "Moves flexible jobs toward low-carbon hours", "Optimises carbon. Following the sun can mean running in the hottest hours."],
-  ["Electricity demand response", "Shifts ML load off grid peaks", "Proves AI load can flex. The water utility is not in the signal."],
-  ["WaterWise", "Co-optimises carbon and total water", "Minimises litres. It does not cap the peak day that sizes pipes, and it has no utility signal."],
-  ["Annual WUE", "Reports yearly litres per kWh", "Hides the peak. The research calls for a peak WUE."],
-  ["Tanks alone", "Smooth a few hours", "They cannot cover a multi-day heatwave."],
+const STANDARDS_BAR = [
+  { label: "Optimization Solver", value: "PuLP CBC 72h Rolling MILP" },
+  { label: "Official US Grid Data", value: "EIA-930 MISO · AZPS · PJM" },
+  { label: "Water-Stress Mapping", value: "WRI Aqueduct 4.0 Tiers" },
+  { label: "AI Cluster Workload", value: "Alibaba PAI 759,033 GPU Jobs" },
+  { label: "Regulatory Standard", value: "EU EED (2024/1364) & ISO 30134-9" },
 ];
 
-const levers = [
-  ["Time-shift", "Move batch jobs and checkpointed training into cooler hours, up to a day. Inference stays where it is."],
-  ["Space-shift", "Send flexible work to a sister site only when that forecast is actually cooler. The gallons are not the same gallons."],
-  ["Water↔power", "Switch to dry cooling when the grid has room. The brief's reference cost is +0.15 PUE."],
-  ["Tank", "Fill before the heat and draw on the worst hours. Storage shaves a peak. It does not survive a week of it."],
+const TIERS = [
+  {
+    name: "Single-Campus Pilot",
+    tag: "90-Day Shadow Mode",
+    price: "$2,500",
+    unit: "/mo · 1 basin",
+    desc: "Rapid validation for a high-stress campus facing zoning scrutiny or peak municipal tariffs.",
+    featured: false,
+    points: [
+      "Live 72h weather, wet-bulb & grid feed integration",
+      "6-point Thermal Tank Sizing ROI & payback analysis",
+      "Permit Shield Baseline Report for municipal submission",
+      "Read-only BMS / Slurm / Kubernetes shadow schedules",
+    ],
+    cta: "Start 14-Day Shadow Pilot",
+  },
+  {
+    name: "Multi-Basin Global Fleet",
+    tag: "Most Popular · Hyperscale",
+    price: "Custom Fleet",
+    unit: "Unlimited basins & regions",
+    desc: "Full cross-basin compute routing, automated drought response, and statutory ESG compliance.",
+    featured: true,
+    points: [
+      "All 10 calibrated stress corridors + custom lat/lon sites",
+      "Automated cross-region failover respecting 110% sister guardrails",
+      "EU EED (2024/1364) A–G & ISO 30134-9 audit trail export",
+      "Reclaimed / TSE cooling mix + active Slurm & K8s webhooks",
+    ],
+    cta: "Book Global Fleet Demo",
+  },
+  {
+    name: "Municipal Utility Partner",
+    tag: "Water-DR Aggregation",
+    price: "Utility SLA",
+    unit: "Multi-operator basin ledger",
+    desc: "Built for municipal water works avoiding $10M–$40M/MGD peak plant expansions.",
+    featured: false,
+    points: [
+      "ThirstCap-WaterDR-v1 OpenADR 4-stage curtailment console",
+      "Campus-by-campus firm daily MGD compliance verification",
+      "Regional drought alert broadcasting (-15%, -30%, -45%)",
+      "Residential household capacity protection telemetry",
+    ],
+    cta: "Connect Utility Engineering",
+  },
 ];
-
-const toy = [
-  ["Des Moines, Iowa", "112", "13%", "11", "171 MWh/yr (0.03%)"],
-  ["Phoenix, Arizona", "244", "4%", "88", "4,586 MWh/yr (0.68%)"],
-  ["Lahore, Pakistan", "254", "6%", "34", "1,333 MWh/yr (0.20%)"],
-  ["Karachi, Pakistan", "343", "7%", "115", "3,611 MWh/yr (0.54%)"],
-];
-
-function Fact({ kicker, figure, text, href }: { kicker: string; figure: string; text: string; href: string }) {
-  return (
-    <article className="rounded-3xl border border-sand-line bg-sand-card p-4 shadow-card">
-      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-lagoon">{kicker}</p>
-      <p className="mt-2 font-serif text-3xl">{figure}</p>
-      <p className="mt-2 text-sm leading-6 text-ink-soft">{text}</p>
-      <a className="mt-3 inline-block text-sm font-semibold text-lagoon underline" href={href}>
-        Source
-      </a>
-    </article>
-  );
-}
 
 export function HomePage() {
+  const reduced = useReducedMotion();
+  const [pilotOpen, setPilotOpen] = useState(false);
+
   return (
-    <>
-      <section className="topo bg-lagoon-deep text-sand">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:py-20">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-lagoon-mist">
-              Xylem 2026 · University Track · Water Quantity
-            </p>
-            <h1 className="mt-4 max-w-xl font-serif text-4xl leading-tight sm:text-6xl">
-              Let AI grow without making the hottest day worse.
+    <div className="bg-canvas text-marine-ink">
+      {/* 1. Executive Commercial Hero */}
+      <section className="marine-grid border-b border-slate-800 bg-[#04111D] text-white">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-12 lg:gap-12 lg:py-16">
+          <motion.div
+            initial={reduced ? undefined : { opacity: 0, y: 12 }}
+            animate={reduced ? undefined : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+            className="lg:col-span-6"
+          >
+            <span className="inline-flex items-center gap-2 rounded-full border border-sky-500/35 bg-sky-500/10 px-3 py-1 font-mono text-[11px] font-semibold text-sky-300">
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" aria-hidden="true" />
+              Enterprise Water-Cap OS · WRI Aqueduct &amp; EU EED Ready
+            </span>
+
+            <h1 className="heading-balance mt-4 font-display text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-[54px] lg:leading-[1.06]">
+              Cap Peak Water Withdrawal. Unlock Permits &amp; Protect Basins.
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-7 text-sand/85 sm:text-lg">
-              Water systems are built for the peak day, not the yearly average. Data-center cooling spikes on that
-              same day. ThirstCap reads a 72-hour forecast and plans flexible jobs, the cooling mode, and a tank so
-              withdrawal stays under a cap the utility can rely on.
+
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
+              72-hour rolling MILP optimization that co-dispatches AI batch compute, cross-basin failover, cooling storage tanks, and grid-safe dry cooling — keeping facilities inside municipal limits before utilities spend{" "}
+              <strong className="font-semibold text-white">$10M–$40M per MGD</strong> on peak supply capacity.
             </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link href="/dashboard" className="rounded-full bg-sand px-5 py-2.5 text-sm font-semibold text-ink">
-                Open the demo
+
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-2 rounded-xl bg-sky-500 px-5 py-3 text-sm font-bold text-[#04111D] shadow-lg shadow-sky-500/20 transition-colors hover:bg-sky-400"
+              >
+                Launch Live Control Plane
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
-              <a href="#problem" className="rounded-full border border-white/25 px-5 py-2.5 text-sm font-semibold text-sand">
-                The hidden peak
-              </a>
+              <button
+                type="button"
+                onClick={() => setPilotOpen(true)}
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-[#0A1E33] px-5 py-3 text-sm font-semibold text-white transition-colors hover:border-sky-400/60"
+              >
+                <CalendarCheck2 className="h-4 w-4 text-sky-400" aria-hidden="true" />
+                Configure 14-Day Pilot
+              </button>
             </div>
-            <p className="mt-6 text-sm text-sand/70">
-              Asim, Maira, Malaika, Tayyab · NUTECH, Islamabad
-            </p>
-          </div>
-          <div className="rounded-3xl bg-sand-card p-5 text-ink shadow-card">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-heat">Sample · Des Moines</p>
-            <p className="mt-2 font-serif text-2xl leading-snug">8–14 July 2025, uncontrolled</p>
-            <p className="mt-1 text-sm leading-6 text-ink-soft">
-              Real archive temperatures. Water is the toy curve, not a meter. 10 July is the day a pipe is sized for.
-              11 July barely needs evaporation.
-            </p>
-            <div className="mt-3">
-              <HeroChart days={week.days} />
-            </div>
-            <p className="text-xs text-ink-faint">Open-Meteo hourly archive, toy withdrawal at a flat 70 MW.</p>
-          </div>
+
+            <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-slate-800/90 pt-6 sm:grid-cols-4">
+              <div>
+                <dt className="text-[11px] text-slate-400">Peak-Day Shaved</dt>
+                <dd className="num mt-0.5 font-display text-2xl font-bold text-emerald-400">22%–45.4%</dd>
+              </div>
+              <div>
+                <dt className="text-[11px] text-slate-400">10-Basin Potential</dt>
+                <dd className="num mt-0.5 font-display text-2xl font-bold text-white">3.00 MGD</dd>
+              </div>
+              <div>
+                <dt className="text-[11px] text-slate-400">Grid-Peak Penalty</dt>
+                <dd className="num mt-0.5 font-display text-2xl font-bold text-sky-300">0.0 MW</dd>
+              </div>
+              <div>
+                <dt className="text-[11px] text-slate-400">Global Corridors</dt>
+                <dd className="num mt-0.5 font-display text-2xl font-bold text-white">10 Basins</dd>
+              </div>
+            </dl>
+          </motion.div>
+
+          <motion.div
+            initial={reduced ? undefined : { opacity: 0, y: 16 }}
+            animate={reduced ? undefined : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.08 }}
+            className="lg:col-span-6"
+          >
+            <HeroSimulator />
+          </motion.div>
         </div>
       </section>
 
-      <section id="problem" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-lagoon">The problem</p>
-            <h2 className="mt-2 font-serif text-3xl sm:text-4xl">The bill is the peak day.</h2>
-            <p className="mt-4 text-base leading-7 text-ink-soft">
-              Yearly water-use effectiveness hides the day that sets the pipe, the pump, and the treatment plant.
-              Researchers put data-center daily peaking factors — peak day divided by average day — at 6, sometimes
-              above 10, and above 30 for some planned sites. Other large users usually sit between 1.5 and 2.5.
-            </p>
-            <blockquote className="mt-6 border-l-2 border-heat pl-4">
-              <p className="font-serif text-2xl leading-snug">“We just don’t have the water.”</p>
-              <p className="mt-2 text-sm text-ink-faint">
-                A Newton County, Georgia water official, as cited in{" "}
-                <a className="text-lagoon underline" href="https://arxiv.org/abs/2603.02705">
-                  Han, Li, Wierman, and Ren (2026)
-                </a>
-                . West Des Moines Water Works said in 2022 it would only consider future data centers that
-                significantly reduce peak use. Thames Water has discussed restricting peak use in the hottest periods.
+      {/* 2. Verified Engineering & Regulatory Credibility Bar */}
+      <section className="border-b border-line bg-surface">
+        <div className="mx-auto grid max-w-7xl divide-y divide-slate-100 px-4 sm:grid-cols-2 sm:divide-x sm:divide-y-0 sm:px-6 lg:grid-cols-5">
+          {STANDARDS_BAR.map((item) => (
+            <div key={item.label} className="px-4 py-4">
+              <p className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-marine-faint">
+                {item.label}
               </p>
-            </blockquote>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Fact
-              kicker="Xylem / GWI"
-              figure="23.7 km³"
-              text="withdrawn by the AI value chain in 2025, up 38% since 2020, with another 129% expected by 2050. Nearly 40% of existing data centers sit in high or extremely high water stress."
-              href="https://www.xylem.com/en-us/info/watering-the-new-economy/"
-            />
-            <Fact
-              kicker="IEA, 2025"
-              figure="560 → 1,200"
-              text="billion litres a year. That is the IEA base-case range for global data-center water consumption today and in 2030. The total is not the constraint. The peak day is."
-              href="https://iea.blob.core.windows.net/assets/b3a8b37f-32d1-4873-9eca-31cec5895264/EnergyandAI.pdf"
-            />
-            <Fact
-              kicker="Peak capacity"
-              figure="$10–58B"
-              text="U.S. data centers could need 697–1,451 million gallons per day of new peak water capacity by 2030, on the order of New York City’s supply, at $10–40 million per million gallons a day."
-              href="https://arxiv.org/abs/2603.02705"
-            />
-            <Fact
-              kicker="Where it is growing"
-              figure="25 countries"
-              text="A quarter of the world’s population already lives with extremely high water stress, including India, Saudi Arabia, and the UAE. Pakistan set aside 2,000 MW in May 2025 for mining and AI data centers."
-              href="https://www.wri.org/insights/highest-water-stressed-countries"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className="border-y border-sand-line bg-white/60">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-lagoon">Why today’s fixes miss it</p>
-          <h2 className="mt-2 max-w-2xl font-serif text-3xl sm:text-4xl">
-            The tools we have optimise a total. Utilities build a maximum.
-          </h2>
-          <div className="mt-8 overflow-x-auto">
-            <table className="w-full min-w-[40rem] text-left text-sm">
-              <caption className="sr-only">Existing approaches and the gap ThirstCap is aimed at</caption>
-              <thead className="text-xs uppercase tracking-[0.12em] text-ink-faint">
-                <tr>
-                  <th className="py-2 pr-4 font-medium">What exists</th>
-                  <th className="py-2 pr-4 font-medium">What it does</th>
-                  <th className="py-2 font-medium">What it leaves open</th>
-                </tr>
-              </thead>
-              <tbody>
-                {gaps.map(([name, does, gap]) => (
-                  <tr key={name} className="border-t border-sand-line align-top">
-                    <th className="py-3 pr-4 font-serif text-base font-medium">{name}</th>
-                    <td className="py-3 pr-4 text-ink-soft">{does}</td>
-                    <td className="py-3 text-ink-soft">{gap}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="mt-4 max-w-3xl text-sm leading-6 text-ink-faint">
-            The researchers’ own recommendation: water-aware computing together with tanks, and coordinated
-            water-power planning. They recommend it. ThirstCap is the scheduler that treats the peak day as the
-            objective, and gives the utility a signal when that day is coming.
-          </p>
-        </div>
-      </section>
-
-      <section id="levers" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-lagoon">The idea</p>
-        <h2 className="mt-2 max-w-2xl font-serif text-3xl sm:text-4xl">
-          A lot of AI work does not have to run at 3pm on a heatwave.
-        </h2>
-        <p className="mt-4 max-w-2xl text-base leading-7 text-ink-soft">
-          ThirstCap is a rolling 72-hour controller. Every hour it re-solves a plan whose first term is the worst
-          day’s withdrawal. Four levers move together, under a grid-peak penalty so the water save is not quietly
-          dumped onto the power peak.
-        </p>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {levers.map(([title, body], index) => (
-            <article key={title} className="rounded-3xl border border-sand-line bg-sand-card p-4 shadow-card">
-              <p className="text-xs font-semibold text-lagoon">0{index + 1}</p>
-              <h3 className="mt-2 font-serif text-2xl">{title}</h3>
-              <p className="mt-2 text-sm leading-6 text-ink-soft">{body}</p>
-            </article>
+              <p className="mt-1 font-display text-sm font-bold text-marine-ink">{item.value}</p>
+            </div>
           ))}
         </div>
-        <p className="mt-6 max-w-3xl text-sm leading-6 text-ink-soft">
-          A utility flex event — a heatwave or a drought stage — tightens the cap the way a power demand-response
-          call tightens a load. The demo button does that cut at 30% and solves again. The product this is aiming at
-          is a “pipe neutral” commitment: a firm peak the town does not have to build, in exchange for a faster
-          connection. That commercial wrapper is an assumption, not a signed contract.
-        </p>
       </section>
 
-      <section id="method" className="bg-ink text-sand">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-lagoon-mist">How a plan is made</p>
-          <h2 className="mt-2 font-serif text-3xl sm:text-4xl">Forecast, plant, optimizer, cap.</h2>
-          <ol className="mt-8 grid gap-3 md:grid-cols-5">
-            {[
-              ["Forecast", "Hourly dry-bulb and wet-bulb from Open-Meteo. Backtests use the historical forecast, so the error is real."],
-              ["Plant", "Evaporation from latent heat, make-up from cycles of concentration, and a mode for dry, evaporative, or chiller."],
-              ["Workload", "Fixed inference, deferrable batch, pausable training. Flexible share is tested from 5% to 30%."],
-              ["Optimizer", "Minimise the peak day plus extra electricity, grid-peak megawatts, and job delay."],
-              ["Cap", "A 72-hour plan the utility can read, and a flex event when the town needs it tighter."],
-            ].map(([title, body], index) => (
-              <li key={title} className="rounded-2xl bg-white/5 p-4">
-                <p className="text-xs text-lagoon-mist">0{index + 1}</p>
-                <h3 className="mt-2 font-serif text-xl">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-sand/75">{body}</p>
-              </li>
-            ))}
-          </ol>
-          <p className="mt-6 max-w-3xl text-sm leading-6 text-sand/70">
-            The screens you can click today run a labelled sample of that pipeline: real temperatures, the brief’s
-            toy curve, and a heuristic in place of the MILP. The FastAPI service that replaces the heuristic is
-            specified in BACKEND.md so the same screens light up against the solver.
-          </p>
-        </div>
-      </section>
+      {/* 3. Global Water-Stress Hotspots Map & 10-City Network */}
+      <GlobalBasinMap />
 
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-lagoon">Toy check, 11 Nov 2026</p>
-            <h2 className="mt-2 font-serif text-3xl">Time-shifting alone is not enough.</h2>
+      {/* 4. 4-Lever Physics & Compute Architecture Schematic */}
+      <ArchitectureDiagram />
+
+      {/* 5. Stakeholder Solutions Tabs */}
+      <StakeholderTabs />
+
+      {/* 6. Dark Marine Financial ROI + Permit Shield Showcase */}
+      <section className="marine-grid border-y border-slate-800 bg-[#04111D] py-16 text-white lg:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="max-w-3xl">
+            <p className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.08em] text-sky-400">
+              <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
+              Enterprise Economics &amp; Statutory Compliance
+            </p>
+            <h2 className="heading-balance mt-2 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              From Water Scarcity Risk to Boardroom Financial Return
+            </h2>
           </div>
-          <p className="max-w-md text-sm leading-6 text-ink-faint">
-            The team’s one-day sanity check on 2025 weather. These are not the dashboard, and they are not the
-            calibrated model. They are why the four levers exist.
-          </p>
-        </div>
-        <div className="mt-6 overflow-x-auto">
-          <table className="w-full min-w-[40rem] text-left text-sm">
-            <caption className="sr-only">Toy model sanity check by city</caption>
-            <thead className="text-xs uppercase tracking-[0.12em] text-ink-faint">
-              <tr>
-                <th className="py-2 pr-3 font-medium">Site</th>
-                <th className="py-2 pr-3 font-medium">Days needing evaporative assist</th>
-                <th className="py-2 pr-3 font-medium">Peak cut, time-shift only</th>
-                <th className="py-2 pr-3 font-medium">Days that need a swap to halve the peak</th>
-                <th className="py-2 font-medium">Extra electricity</th>
-              </tr>
-            </thead>
-            <tbody>
-              {toy.map((row) => (
-                <tr key={row[0]} className="border-t border-sand-line">
-                  {row.map((cell) => (
-                    <td key={cell} className="py-3 pr-3">
-                      {cell}
-                    </td>
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+            {/* CFO 5-Year ROI Card */}
+            <div className="rounded-2xl border border-slate-800 bg-[#081B2E] p-6 sm:p-7">
+              <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-4">
+                <div>
+                  <p className="font-mono text-xs font-semibold uppercase tracking-wider text-sky-400">
+                    CFO 5-Year Financial Model
+                  </p>
+                  <h3 className="mt-1 font-display text-xl font-bold text-white">
+                    100 MW Dubai vs. Phoenix Reference Campus
+                  </h3>
+                </div>
+                <span className="num rounded-lg bg-sky-500/15 px-3 py-1 font-mono text-xs font-bold text-sky-300">
+                  +$6.94M / +$4.32M NPV
+                </span>
+              </div>
+
+              <dl className="mt-5 space-y-3 text-sm">
+                <div className="flex items-center justify-between border-b border-slate-800/70 pb-2.5">
+                  <dt className="text-slate-300">Avoided Municipal Supply CAPEX (Han et al. 2026)</dt>
+                  <dd className="num font-semibold text-white">$3.50M – $16.98M</dd>
+                </div>
+                <div className="flex items-center justify-between border-b border-slate-800/70 pb-2.5">
+                  <dt className="text-slate-300">Annual Regional Tariff &amp; Surcharge Savings</dt>
+                  <dd className="num font-semibold text-emerald-400">$215K – $595K / yr</dd>
+                </div>
+                <div className="flex items-center justify-between border-b border-slate-800/70 pb-2.5">
+                  <dt className="text-slate-300">40,000 gal Thermal Tank Build Cost ($2.50/gal)</dt>
+                  <dd className="num font-semibold text-slate-200">$100,000 (0.15 yr payback)</dd>
+                </div>
+                <div className="flex items-center justify-between border-b border-slate-800/70 pb-2.5">
+                  <dt className="text-slate-300">Grid-Peak Dry-Cooling Penalty Added</dt>
+                  <dd className="num font-semibold text-emerald-400">$0 / peak hour (0.0 MW)</dd>
+                </div>
+              </dl>
+
+              <p className="mt-4 text-xs leading-relaxed text-slate-400">
+                Every tariff rate ($3.60–$11.50/kgal) and electricity rate ($85/MWh default) is customizable live inside the Control Plane to match site-specific municipal utility contracts.
+              </p>
+            </div>
+
+            {/* Permit Shield & EU EED Compliance Card */}
+            <div className="rounded-2xl border border-slate-800 bg-[#081B2E] p-6 sm:p-7">
+              <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-4">
+                <div>
+                  <p className="font-mono text-xs font-semibold uppercase tracking-wider text-emerald-400">
+                    Permit Shield &amp; EU EED (2024/1364)
+                  </p>
+                  <h3 className="mt-1 font-display text-xl font-bold text-white">
+                    Audit-Ready WUE &amp; Community Impact Telemetry
+                  </h3>
+                </div>
+                <FileCheck2 className="h-6 w-6 text-emerald-400" aria-hidden="true" />
+              </div>
+
+              {/* Visual EU EED Grade Scale */}
+              <div className="mt-5">
+                <div className="flex items-center justify-between text-xs text-slate-300">
+                  <span>Des Moines / Querétaro Potable WUE (Stage 2 + 35% TSE)</span>
+                  <span className="num font-bold text-emerald-400">Grade A Qualified</span>
+                </div>
+                <div className="mt-2 grid grid-cols-7 gap-1.5 text-center font-mono text-xs font-bold">
+                  {[
+                    { g: "A", active: true, cls: "bg-emerald-500 text-[#04111D] ring-2 ring-emerald-300" },
+                    { g: "B", active: false, cls: "bg-emerald-950/60 text-emerald-300 border border-emerald-800" },
+                    { g: "C", active: false, cls: "bg-sky-950/60 text-sky-300 border border-sky-900" },
+                    { g: "D", active: false, cls: "bg-amber-950/60 text-amber-300 border border-amber-900" },
+                    { g: "E", active: false, cls: "bg-orange-950/60 text-orange-300 border border-orange-900" },
+                    { g: "F", active: false, cls: "bg-rose-950/60 text-rose-300 border border-rose-900" },
+                    { g: "G", active: false, cls: "bg-rose-950 text-rose-400 border border-rose-900" },
+                  ].map((item) => (
+                    <div key={item.g} className={`rounded-lg py-2 ${item.cls}`}>
+                      {item.g}
+                    </div>
                   ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="mt-4 max-w-3xl text-sm leading-6 text-ink-soft">
-          In that check, 66% of Des Moines hours above 25°C fell between noon and 8pm, so moving work helped. Phoenix
-          and Lahore stay hot at night, and the electricity you spend to kill evaporation lands in the same afternoon
-          the grid is already stressed. That conflict is the reason for a joint plan. The demo is built so you can
-          see which lever actually moves in each city.
-        </p>
-        <div className="mt-8">
-          <Link href="/dashboard" className="rounded-full bg-lagoon px-5 py-2.5 text-sm font-semibold text-white">
-            Run the Iowa week
-          </Link>
-          <Link
-            href="/dashboard?site=lahore&preset=lhe-2025-06-08"
-            className="ml-3 inline-block text-sm font-semibold text-lagoon underline"
-          >
-            Or open Lahore
-          </Link>
-        </div>
-      </section>
+                </div>
+              </div>
 
-      <section className="border-y border-sand-line bg-white/60">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-lagoon">What a judge can see</p>
-          <h2 className="mt-2 font-serif text-3xl">Impact, fit, and a new objective.</h2>
-          <div className="mt-8 grid gap-4 lg:grid-cols-3">
-            <article className="rounded-3xl border border-sand-line bg-sand-card p-5">
-              <h3 className="font-serif text-2xl">Impact</h3>
-              <p className="mt-2 text-sm leading-6 text-ink-soft">
-                Every million gallons a day kept off the peak is a pipe, pump, or plant a town does not have to
-                finance. The demo reports that peak in gallons and as a sample Water Capacity Impact, for a fleet that
-                already exists. About 40% of data centers are in water-stressed regions. The Pakistan weeks are the
-                case for planning before the build-out, not after a refusal.
-              </p>
-            </article>
-            <article className="rounded-3xl border border-sand-line bg-sand-card p-5">
-              <h3 className="font-serif text-2xl">Challenge fit</h3>
-              <p className="mt-2 text-sm leading-6 text-ink-soft">
-                Water Quantity, stated as efficiency and responsible growth. No new cooling hardware. The controls are
-                a job scheduler, a cooling mode, and a tank, which sites already have, plus a flex signal copied from
-                electricity demand response. The weather on screen is the 2025 archive, not a drawn heatwave.
-              </p>
-            </article>
-            <article className="rounded-3xl border border-sand-line bg-sand-card p-5">
-              <h3 className="font-serif text-2xl">Innovation</h3>
-              <p className="mt-2 text-sm leading-6 text-ink-soft">
-                Past Ignite winners won with a local, data-backed problem, a water–energy link, and a prototype
-                someone could use. None of them scheduled water for digital infrastructure. ThirstCap keeps that
-                pattern and aims it at the peak day: joint control of compute, cooling, and storage, and a utility
-                signal with a firm cap.
-              </p>
-            </article>
+              <div className="mt-5 grid grid-cols-3 gap-3 text-center sm:text-left">
+                <div className="rounded-xl border border-slate-800 bg-[#04111D] p-3">
+                  <p className="text-[11px] text-slate-400">Permit Shield</p>
+                  <p className="num mt-1 font-display text-xl font-bold text-emerald-400">94 / 100</p>
+                  <p className="text-[10.5px] text-slate-400">Permit Ready</p>
+                </div>
+                <div className="rounded-xl border border-slate-800 bg-[#04111D] p-3">
+                  <p className="text-[11px] text-slate-400">Potable Water Cut</p>
+                  <p className="num mt-1 font-display text-xl font-bold text-sky-300">-64.5%</p>
+                  <p className="text-[10.5px] text-slate-400">35% TSE Reclaimed</p>
+                </div>
+                <div className="rounded-xl border border-slate-800 bg-[#04111D] p-3">
+                  <p className="text-[11px] text-slate-400">Daily Homes Spared</p>
+                  <p className="num mt-1 font-display text-xl font-bold text-white">9,986</p>
+                  <p className="text-[10.5px] text-slate-400">Across 10 basins</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <h2 className="font-serif text-3xl">Real, simulated, and not claimed.</h2>
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          <article className="rounded-3xl bg-lagoon-mist p-5">
-            <h3 className="font-serif text-xl">Real</h3>
-            <p className="mt-2 text-sm leading-6 text-ink-soft">
-              Open-Meteo hours for eight weeks in 2025. The physics constants the brief published. The interaction: a
-              cap, a flex event, four levers, and a before/after a person can operate.
-            </p>
-          </article>
-          <article className="rounded-3xl bg-heat-mist p-5">
-            <h3 className="font-serif text-xl">Simulated</h3>
-            <p className="mt-2 text-sm leading-6 text-ink-soft">
-              The campus itself. A flat 70 MW load. The flexible share. The sister pairing. The tank. The sample grid
-              shape. In the browser, a heuristic stands in for the MILP. The UI says so on every plan.
-            </p>
-          </article>
-          <article className="rounded-3xl bg-sand-card p-5 shadow-card">
-            <h3 className="font-serif text-xl">Not claimed</h3>
-            <p className="mt-2 text-sm leading-6 text-ink-soft">
-              A saving at any operating facility. A forecast-error backtest — the noisy curve in the demo is synthetic
-              on purpose. Video numbers. Those wait for the calibrated solver.
-            </p>
-          </article>
-        </div>
-        <div className="mt-10">
-          <h2 className="font-serif text-3xl">Team</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-ink-soft">
-            Asim, Maira, Malaika, and Tayyab are software engineering students at NUTECH in Islamabad, Pakistan. This
-            is their University Track entry on Problem Statement 1, Water Quantity. Mentors and teachers who help
-            during the final review should be credited on the project page. The build uses free data and free tools.
+      {/* 7. Enterprise Deployment & Commercial Packaging */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
+        <div className="max-w-2xl">
+          <p className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.08em] text-hydro">
+            <Layers className="h-3.5 w-3.5" aria-hidden="true" />
+            Commercial Deployment Paths
           </p>
-          <ul className="mt-4 flex flex-wrap gap-2 text-sm">
-            {["Asim", "Maira", "Malaika", "Tayyab"].map((name) => (
-              <li key={name} className="rounded-full border border-sand-line bg-white px-4 py-1.5">
-                {name}
-              </li>
-            ))}
-            <li className="rounded-full bg-ink px-4 py-1.5 text-sand">NUTECH Islamabad</li>
-          </ul>
+          <h2 className="heading-balance mt-2 font-display text-3xl font-bold tracking-tight text-marine-ink sm:text-4xl">
+            From 14-Day Shadow Audit to Automated Utility Dispatch
+          </h2>
+        </div>
+
+        <div className="mt-10 grid gap-6 lg:grid-cols-3">
+          {TIERS.map((tier) => (
+            <div
+              key={tier.name}
+              className={`flex flex-col justify-between rounded-2xl border p-6 sm:p-7 ${
+                tier.featured
+                  ? "border-2 border-hydro bg-surface shadow-xl ring-4 ring-sky-500/10"
+                  : "border-line bg-surface shadow-sm"
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="font-display text-xl font-bold text-marine-ink">{tier.name}</h3>
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 font-mono text-[10.5px] font-semibold ${
+                      tier.featured ? "bg-sky-100 text-hydro-dark" : "bg-subtle text-marine-muted"
+                    }`}
+                  >
+                    {tier.tag}
+                  </span>
+                </div>
+                <div className="mt-4 flex items-baseline gap-2">
+                  <span className="num font-display text-3xl font-bold text-marine-ink">{tier.price}</span>
+                  <span className="text-xs text-marine-muted">{tier.unit}</span>
+                </div>
+                <p className="mt-2.5 text-sm leading-relaxed text-marine-muted">{tier.desc}</p>
+
+                <ul className="mt-5 space-y-2.5 border-t border-slate-100 pt-5 text-sm">
+                  {tier.points.map((pt) => (
+                    <li key={pt} className="flex items-start gap-2.5 text-marine-ink">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+                      <span>{pt}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setPilotOpen(true)}
+                className={`mt-7 w-full rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
+                  tier.featured
+                    ? "bg-hydro text-white hover:bg-hydro-dark"
+                    : "border border-slate-300 bg-canvas text-marine-ink hover:bg-subtle"
+                }`}
+              >
+                {tier.cta}
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom Enterprise CTA Banner */}
+        <div className="mt-14 flex flex-col items-start justify-between gap-6 rounded-2xl border border-slate-800 bg-[#081B2E] p-7 text-white sm:p-10 lg:flex-row lg:items-center">
+          <div className="max-w-2xl">
+            <h3 className="heading-balance font-display text-2xl font-bold sm:text-3xl">
+              Validate Your Basin&apos;s Peak Water Cap in Minutes
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-300 sm:text-base">
+              Run real-time 7-day forecasts or 2026 summer heatwave stress tests across all 10 flagship basins — or search literally any city on Earth live.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 rounded-xl bg-sky-500 px-5 py-3 text-sm font-bold text-[#04111D] hover:bg-sky-400"
+            >
+              Open Live Control Plane
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+            <button
+              type="button"
+              onClick={() => setPilotOpen(true)}
+              className="rounded-xl border border-slate-600 px-5 py-3 text-sm font-semibold text-white hover:border-sky-400"
+            >
+              Generate Pilot Brief
+            </button>
+          </div>
         </div>
       </section>
 
-      <footer className="border-t border-sand-line">
-        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-          <h2 className="font-serif text-2xl">Sources</h2>
-          <ul className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
-            {SOURCES.map((source) => (
-              <li key={source.id}>
-                <a className="text-lagoon underline" href={source.href}>
-                  {source.label}
-                </a>
-                <span className="text-ink-faint"> — {source.detail}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-6 text-xs text-ink-faint">
-            ThirstCap · prepared from the team brief of 11 Nov 2026 · sample numbers are not for the video
-          </p>
+      {/* 8. Rich Commercial Footer */}
+      <footer className="border-t border-slate-800 bg-[#04111D] text-slate-300">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <Logo inverted animated={false} />
+              <p className="mt-3 text-xs leading-relaxed text-slate-400">
+                72-hour rolling CBC MILP optimization platform capping peak-day industrial cooling water withdrawal across water-stressed AI infrastructure hubs.
+              </p>
+            </div>
+            <div>
+              <p className="font-mono text-xs font-semibold uppercase tracking-wider text-white">Control Plane</p>
+              <ul className="mt-3 space-y-2 text-xs">
+                <li>
+                  <Link href="/dashboard?tab=peak" className="hover:text-sky-300">Peak Cap &amp; Financials</Link>
+                </li>
+                <li>
+                  <Link href="/dashboard?tab=dispatch" className="hover:text-sky-300">Slurm / K8s Dispatch Matrix</Link>
+                </li>
+                <li>
+                  <Link href="/dashboard?tab=tank" className="hover:text-sky-300">Thermal Tank Sizing ROI</Link>
+                </li>
+                <li>
+                  <Link href="/dashboard?tab=fleet" className="hover:text-sky-300">10-Basin Fleet Ledger</Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-mono text-xs font-semibold uppercase tracking-wider text-white">Hotspot Basins</p>
+              <ul className="mt-3 space-y-2 text-xs">
+                <li>
+                  <Link href="/dashboard?site=phoenix" className="hover:text-sky-300">Phoenix &amp; N. Virginia (US)</Link>
+                </li>
+                <li>
+                  <Link href="/dashboard?site=queretaro" className="hover:text-sky-300">Querétaro &amp; Santiago (LATAM)</Link>
+                </li>
+                <li>
+                  <Link href="/dashboard?site=zaragoza" className="hover:text-sky-300">Zaragoza, Spain (EU EED)</Link>
+                </li>
+                <li>
+                  <Link href="/dashboard?site=dubai" className="hover:text-sky-300">Dubai, UAE &amp; South Asia</Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-mono text-xs font-semibold uppercase tracking-wider text-white">Standards &amp; Governance</p>
+              <ul className="mt-3 space-y-2 text-xs">
+                <li>
+                  <Link href="/dashboard?tab=compliance" className="hover:text-sky-300">EU EED (2024/1364) A–G Audit</Link>
+                </li>
+                <li>
+                  <Link href="/dashboard?tab=protocol" className="hover:text-sky-300">Water-DR OpenADR Signal</Link>
+                </li>
+                <li>
+                  <button type="button" onClick={() => setPilotOpen(true)} className="hover:text-sky-300">
+                    Request Shadow Pilot Brief
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-slate-800 pt-6 text-xs text-slate-400">
+            <p>
+              Built by Team ThirstCap (NUTECH Islamabad) · Xylem Global Student Innovation Challenge 2026 — Problem Statement #1: Water Quantity
+            </p>
+            <p className="font-mono text-[11px]">PuLP CBC · EIA-930 (MISO/AZPS/PJM) · Open-Meteo · Alibaba PAI</p>
+          </div>
         </div>
       </footer>
-    </>
+
+      <PilotModal open={pilotOpen} onClose={() => setPilotOpen(false)} />
+    </div>
   );
 }

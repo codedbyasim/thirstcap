@@ -1,0 +1,52 @@
+{
+  "source": "Open-Meteo 2025 full-year archive (8,760h) + physical cooling tower model",
+  "latent_heat_kj_per_kg": 2450.0,
+  "base_evap_l_per_kwh_heat": 1.469388,
+  "default_coc": 4.0,
+  "pue_evap": 1.15,
+  "pue_chiller": 1.25,
+  "iowa_raw_annual_wue": 0.3014,
+  "iowa_raw_warm_wue": 2.3001,
+  "calibration_multiplier": 0.630339,
+  "anchors": {
+    "iowa_annual_target_l_per_kwh": 0.19,
+    "evaporative_target_range_l_per_kwh": [
+      1.13,
+      1.55
+    ],
+    "arizona_monthly_peak_anchor_l_per_kwh": "> 9.0 (includes extreme desert campus / chiller blowdown / ambient losses not captured by single-tower curve alone)"
+  },
+  "karachi_dry_bulb_only_annual_l_per_kwh": 0.5116,
+  "karachi_wet_bulb_annual_l_per_kwh": 1.0998,
+  "sites_2025": {
+    "des-moines": {
+      "annual_mean_l_per_kwh": 0.19,
+      "warm_hour_mean_l_per_kwh": 1.4498,
+      "warm_hours_count": 1148,
+      "peak_month_mean_l_per_kwh": 0.7874,
+      "peak_hour_l_per_kwh": 1.9107
+    },
+    "phoenix": {
+      "annual_mean_l_per_kwh": 0.5676,
+      "warm_hour_mean_l_per_kwh": 1.2045,
+      "warm_hours_count": 4128,
+      "peak_month_mean_l_per_kwh": 1.5065,
+      "peak_hour_l_per_kwh": 1.8061
+    },
+    "lahore": {
+      "annual_mean_l_per_kwh": 0.839,
+      "warm_hour_mean_l_per_kwh": 1.5792,
+      "warm_hours_count": 4654,
+      "peak_month_mean_l_per_kwh": 1.8376,
+      "peak_hour_l_per_kwh": 1.9977
+    },
+    "karachi": {
+      "annual_mean_l_per_kwh": 1.0998,
+      "warm_hour_mean_l_per_kwh": 1.5816,
+      "warm_hours_count": 6091,
+      "peak_month_mean_l_per_kwh": 1.8581,
+      "peak_hour_l_per_kwh": 1.9745
+    }
+  },
+  "note": "Single calibrated multiplier=0.6303 aligns Des Moines 2025 annual WUE to 0.19 L/kWh. Because Arizona >9 L/kWh monthly peaks in literature include low-load overhead and campus non-tower blowdown, this single-multiplier tower model stays strictly physical and does not silently inflate water to hit >9 L/kWh."
+}

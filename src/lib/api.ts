@@ -3,16 +3,18 @@ import { runSamplePlan, runSensitivity, stampPeakDates } from "@/lib/model";
 import { PRESETS, siteById } from "@/lib/sites";
 import {
   ApiError,
+  type FleetCompareResponse,
+  type GeocodeResult,
   type HealthResponse,
   type PlanRequest,
   type PlanResponse,
   type SensitivityResponse,
+  type TankSizingResponse,
 } from "@/lib/types";
 
 type Bundle = Record<string, { times: string[]; temps: number[] }>;
 
 const weather = weatherJson as Bundle;
-
 const SAMPLE_MODEL = "sample-heuristic-toy-curve-v1";
 
 export function apiBaseUrl(): string | null {
@@ -21,7 +23,7 @@ export function apiBaseUrl(): string | null {
   return url.replace(/\/$/, "");
 }
 
-/** Mock is the default. It turns off only when an API URL is set and USE_MOCK is not "true". */
+/** Mock is off whenever NEXT_PUBLIC_API_URL is set and NEXT_PUBLIC_USE_MOCK is not "true". */
 export function usingMock(): boolean {
   const flag = process.env.NEXT_PUBLIC_USE_MOCK;
   const url = apiBaseUrl();
@@ -37,6 +39,18 @@ export async function getHealth(): Promise<HealthResponse> {
   return getJson<HealthResponse>("/v1/health");
 }
 
+export async function geocodeCity(query: string): Promise<GeocodeResult[]> {
+  const trimmed = query.trim();
+  if (trimmed.length < 2) return [];
+  if (usingMock()) {
+    throw new ApiError("Live city geocoding requires the FastAPI backend.", 400, "no_api_url");
+  }
+  const data = await getJson<{ results: GeocodeResult[] }>(
+    `/v1/geocode?q=${encodeURIComponent(trimmed)}`,
+  );
+  return data.results ?? [];
+}
+
 export async function runPlan(request: PlanRequest): Promise<PlanResponse> {
   if (usingMock()) return samplePlan(request);
   const plan = await postJson<PlanResponse>("/v1/plan", request);
@@ -49,6 +63,45 @@ export async function runPlan(request: PlanRequest): Promise<PlanResponse> {
 export async function runSensitivityCall(request: PlanRequest): Promise<SensitivityResponse> {
   if (usingMock()) return sampleSensitivity(request);
   return postJson<SensitivityResponse>("/v1/sensitivity", request);
+}
+
+export async function runTankSizing(request: PlanRequest): Promise<TankSizingResponse> {
+  if (usingMock()) {
+    throw new ApiError("Tank ROI sweep requires the live FastAPI CBC MILP service.", 400, "no_api_url");
+  }
+  return postJson<TankSizingResponse>("/v1/tank-sizing", request);
+}
+
+export async function runFleetCompare(request: PlanRequest): Promise<FleetCompareResponse> {
+  if (usingMock()) {
+    throw new ApiError("Multi-basin fleet comparison requires the live FastAPI CBC MILP service.", 400, "no_api_url");
+  }
+  return postJson<FleetCompareResponse>("/v1/fleet-compare", request);
+}
+
+export async function downloadPlanCsv(request: PlanRequest): Promise<void> {
+  const base = apiBaseUrl();
+  if (!base || usingMock()) {
+    throw new ApiError("CSV export requires the FastAPI optimizer backend.", 400, "no_api_url");
+  }
+  const resp = await fetch(`${base}/v1/export/csv`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "text/csv" },
+    body: JSON.stringify(request),
+    signal: AbortSignal.timeout(90_000),
+  });
+  if (!resp.ok) {
+    throw new ApiError("Failed to export CSV telemetry.", resp.status, "export_failed");
+  }
+  const blob = await resp.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `thirstcap_${request.site_id}_${request.start}_${request.end}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 function samplePlan(request: PlanRequest): PlanResponse {
@@ -122,7 +175,7 @@ async function requestJson<T>(path: string, init: RequestInit): Promise<T> {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Network error";
-    throw new ApiError(message, 0, "network");
+    throw new ApiError(`Cannot reach ThirstCap optimizer at ${base}: ${message}`, 0, "network");
   }
   const text = await response.text();
   let data: unknown = null;

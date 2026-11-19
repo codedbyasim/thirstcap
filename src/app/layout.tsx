@@ -1,29 +1,53 @@
-import type { Metadata } from "next";
-import { Fraunces, Outfit } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
+import { JetBrains_Mono, Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
 import { Nav } from "@/components/Nav";
 import "./globals.css";
 
-const serif = Fraunces({ subsets: ["latin"], variable: "--font-serif" });
-const sans = Outfit({ subsets: ["latin"], variable: "--font-sans" });
+const display = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-display",
+});
+
+const sans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-sans",
+});
+
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-mono",
+});
 
 export const metadata: Metadata = {
   title: {
-    default: "ThirstCap — cap the peak day",
-    template: "%s · ThirstCap",
+    default: "ThirstCap — Enterprise Data Center Water-Cap & ESG Control Plane",
+    template: "%s | ThirstCap",
   },
   description:
-    "ThirstCap plans data-center jobs, cooling mode, and a water tank over 72 hours so the peak day stays under a cap a utility can build around.",
+    "72-hour rolling CBC MILP platform that caps data center peak-day water withdrawal, unlocks municipal permits, enforces EU EED Grade A–G ratings, and protects scarce water basins.",
   applicationName: "ThirstCap",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#04111D",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${serif.variable} ${sans.variable}`}>
-      <body className="min-h-screen font-sans antialiased">
+    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
+      <body className="min-h-screen bg-canvas font-sans text-marine-ink antialiased">
         <a className="skip-link" href="#content">
-          Skip to content
+          Skip to main content
         </a>
-        <Nav />
+        <Suspense fallback={<div className="h-[68px] border-b border-slate-800/80 bg-[#04111D]" />}>
+          <Nav />
+        </Suspense>
         <main id="content">{children}</main>
       </body>
     </html>

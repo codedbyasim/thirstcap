@@ -1,38 +1,65 @@
 "use client";
 
-import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { formatCompact, shortDate, weekday } from "@/lib/format";
+import {
+  Bar,
+  CartesianGrid,
+  ComposedChart,
+  Legend,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { formatCompact, formatGal } from "@/lib/format";
 import { tooltipStyle } from "./tooltip";
 
-export function HeroChart({ days }: { days: { date: string; baseline_gal: number; temp_max_c: number }[] }) {
-  const peak = Math.max(...days.map((d) => d.baseline_gal));
-  const data = days.map((d) => ({
-    label: weekday(d.date),
-    date: shortDate(d.date),
-    gal: d.baseline_gal,
-    temp: d.temp_max_c,
-    hot: d.baseline_gal === peak,
-  }));
+export type HeroDayRow = {
+  day: string;
+  date: string;
+  tmax: number;
+  baseline: number;
+  milp: number;
+  flex: number;
+};
+
+export function HeroChart({ rows, capGal }: { rows: HeroDayRow[]; capGal: number }) {
   return (
-    <div className="h-44 w-full" role="img" aria-label="Sample daily water for Des Moines, 8 to 14 July 2025">
+    <div
+      className="h-56 w-full sm:h-64"
+      role="img"
+      aria-label="Verified CBC MILP Des Moines daily water withdrawal comparing uncontrolled baseline, normal cap plan, and flex event"
+    >
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} barCategoryGap="28%">
-          <XAxis dataKey="label" tick={{ fill: "#3d5256", fontSize: 11 }} axisLine={false} tickLine={false} />
-          <YAxis hide />
+        <ComposedChart data={rows} barGap={3} barCategoryGap="18%" margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <CartesianGrid stroke="#E2E8F0" vertical={false} />
+          <XAxis dataKey="day" tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} />
+          <YAxis
+            tickFormatter={(v) => formatCompact(Number(v))}
+            tick={{ fill: "#475569", fontSize: 11, fontFamily: "var(--font-mono)" }}
+            axisLine={false}
+            tickLine={false}
+            width={46}
+          />
           <Tooltip
             contentStyle={tooltipStyle}
-            formatter={(value) => [`${formatCompact(Number(value))} gal`, "Toy withdrawal"]}
+            formatter={(value, name) => [`${formatGal(Number(value))} gal`, String(name)]}
             labelFormatter={(_l, payload) => {
-              const row = payload?.[0]?.payload as { date: string; temp: number } | undefined;
-              return row ? `${row.date} · ${row.temp.toFixed(1)}°C` : "";
+              const row = payload?.[0]?.payload as HeroDayRow | undefined;
+              return row ? `${row.date} | max ${row.tmax.toFixed(1)}°C` : "";
             }}
           />
-          <Bar dataKey="gal" radius={[4, 4, 0, 0]} maxBarSize={22}>
-            {data.map((row) => (
-              <Cell key={row.label} fill={row.hot ? "#d4652f" : "#c9b8a4"} />
-            ))}
-          </Bar>
-        </BarChart>
+          <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4 }} />
+          <Bar dataKey="baseline" name="Uncontrolled" fill="#EA580C" radius={[3, 3, 0, 0]} maxBarSize={18} />
+          <Bar dataKey="milp" name="MILP Plan (78% Cap)" fill="#0369A1" radius={[3, 3, 0, 0]} maxBarSize={18} />
+          <Bar dataKey="flex" name="Flex Event (-30%)" fill="#0D9488" radius={[3, 3, 0, 0]} maxBarSize={18} />
+          <ReferenceLine
+            y={capGal}
+            stroke="#0B1F33"
+            strokeDasharray="5 4"
+            label={{ value: "78% Cap", position: "insideTopRight", fill: "#0B1F33", fontSize: 10, fontWeight: 600 }}
+          />
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );

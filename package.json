@@ -10,6 +10,8 @@
     "test": "tsx scripts/check-model.ts"
   },
   "dependencies": {
+    "framer-motion": "^14.14.0",
+    "lucide-react": "^1.76.0",
     "next": "^15.5.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

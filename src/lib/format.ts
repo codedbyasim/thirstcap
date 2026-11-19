@@ -1,4 +1,9 @@
 const gal = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
+const usd = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
 
 export function formatGal(value: number): string {
   if (!Number.isFinite(value)) return "—";
@@ -8,6 +13,19 @@ export function formatGal(value: number): string {
 export function formatMgd(gallons: number): string {
   if (!Number.isFinite(gallons)) return "—";
   return `${(gallons / 1_000_000).toFixed(3)} MGD`;
+}
+
+export function formatUsd(amount: number): string {
+  if (!Number.isFinite(amount)) return "—";
+  return usd.format(Math.round(amount));
+}
+
+export function formatUsdCompact(amount: number): string {
+  if (!Number.isFinite(amount)) return "—";
+  const abs = Math.abs(amount);
+  if (abs >= 1_000_000) return `$${(amount / 1_000_000).toFixed(2)}M`;
+  if (abs >= 1_000) return `$${(amount / 1_000).toFixed(1)}k`;
+  return usd.format(Math.round(amount));
 }
 
 export function formatCompact(value: number): string {
@@ -54,6 +72,5 @@ export function shortDate(date: string): string {
 export function hourLabel(time: string): string {
   const hour = Number(time.slice(11, 13));
   if (Number.isNaN(hour)) return time;
-  const h = hour % 12 === 0 ? 12 : hour % 12;
-  return `${h}${hour < 12 ? "a" : "p"}`;
+  return `${String(hour).padStart(2, "0")}:00`;
 }

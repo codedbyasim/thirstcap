@@ -1,0 +1,1031 @@
+{
+  "source": "Alibaba PAI 2020 GPU Cluster Trace (github.com/alibaba/clusterdata/tree/master/cluster-trace-gpu-v2020)",
+  "duration_cuts": {
+    "fixed": "< 900s (< 15 min, interactive inference / short tasks)",
+    "deferrable": "900s to 7200s (15 min to 2 h, batch jobs)",
+    "pausable": "> 7200s (> 2 h, checkpointed training jobs)"
+  },
+  "total_jobs_parsed": 759033,
+  "job_counts_by_class": {
+    "fixed": 418617,
+    "deferrable": 217846,
+    "pausable": 122570
+  },
+  "raw_energy_shares": {
+    "deferrable": 0.1741,
+    "fixed": 0.0273,
+    "pausable": 0.7986
+  },
+  "peak_to_mean_arrival_ratio": 2.199,
+  "min_to_mean_arrival_ratio": 0.3772,
+  "hours": [
+    {
+      "hour_of_week": 0,
+      "fixed": 0.028869,
+      "deferrable": 0.160167,
+      "pausable": 0.571477
+    },
+    {
+      "hour_of_week": 1,
+      "fixed": 0.033882,
+      "deferrable": 0.158564,
+      "pausable": 0.771287
+    },
+    {
+      "hour_of_week": 2,
+      "fixed": 0.044661,
+      "deferrable": 0.252209,
+      "pausable": 1.040056
+    },
+    {
+      "hour_of_week": 3,
+      "fixed": 0.037057,
+      "deferrable": 0.220917,
+      "pausable": 1.94103
+    },
+    {
+      "hour_of_week": 4,
+      "fixed": 0.027593,
+      "deferrable": 0.192678,
+      "pausable": 1.043361
+    },
+    {
+      "hour_of_week": 5,
+      "fixed": 0.027762,
+      "deferrable": 0.168916,
+      "pausable": 1.133999
+    },
+    {
+      "hour_of_week": 6,
+      "fixed": 0.037806,
+      "deferrable": 0.1631,
+      "pausable": 1.285761
+    },
+    {
+      "hour_of_week": 7,
+      "fixed": 0.038901,
+      "deferrable": 0.219101,
+      "pausable": 0.809085
+    },
+    {
+      "hour_of_week": 8,
+      "fixed": 0.034156,
+      "deferrable": 0.151274,
+      "pausable": 0.771385
+    },
+    {
+      "hour_of_week": 9,
+      "fixed": 0.03781,
+      "deferrable": 0.239053,
+      "pausable": 0.898456
+    },
+    {
+      "hour_of_week": 10,
+      "fixed": 0.031297,
+      "deferrable": 0.300196,
+      "pausable": 0.415796
+    },
+    {
+      "hour_of_week": 11,
+      "fixed": 0.035826,
+      "deferrable": 0.156512,
+      "pausable": 0.749894
+    },
+    {
+      "hour_of_week": 12,
+      "fixed": 0.03876,
+      "deferrable": 0.153869,
+      "pausable": 1.082229
+    },
+    {
+      "hour_of_week": 13,
+      "fixed": 0.026429,
+      "deferrable": 0.143862,
+      "pausable": 1.03411
+    },
+    {
+      "hour_of_week": 14,
+      "fixed": 0.017043,
+      "deferrable": 0.10082,
+      "pausable": 0.695934
+    },
+    {
+      "hour_of_week": 15,
+      "fixed": 0.018588,
+      "deferrable": 0.128179,
+      "pausable": 0.768219
+    },
+    {
+      "hour_of_week": 16,
+      "fixed": 0.046412,
+      "deferrable": 0.190648,
+      "pausable": 1.198209
+    },
+    {
+      "hour_of_week": 17,
+      "fixed": 0.027001,
+      "deferrable": 0.242012,
+      "pausable": 0.683048
+    },
+    {
+      "hour_of_week": 18,
+      "fixed": 0.017482,
+      "deferrable": 0.319268,
+      "pausable": 0.647497
+    },
+    {
+      "hour_of_week": 19,
+      "fixed": 0.015435,
+      "deferrable": 0.136405,
+      "pausable": 0.875852
+    },
+    {
+      "hour_of_week": 20,
+      "fixed": 0.019178,
+      "deferrable": 0.137509,
+      "pausable": 0.805871
+    },
+    {
+      "hour_of_week": 21,
+      "fixed": 0.020779,
+      "deferrable": 0.17325,
+      "pausable": 0.599232
+    },
+    {
+      "hour_of_week": 22,
+      "fixed": 0.033862,
+      "deferrable": 0.162633,
+      "pausable": 0.686393
+    },
+    {
+      "hour_of_week": 23,
+      "fixed": 0.033894,
+      "deferrable": 0.160004,
+      "pausable": 0.568711
+    },
+    {
+      "hour_of_week": 24,
+      "fixed": 0.023543,
+      "deferrable": 0.159004,
+      "pausable": 0.682418
+    },
+    {
+      "hour_of_week": 25,
+      "fixed": 0.02716,
+      "deferrable": 0.190761,
+      "pausable": 0.732318
+    },
+    {
+      "hour_of_week": 26,
+      "fixed": 0.042496,
+      "deferrable": 0.200844,
+      "pausable": 1.001983
+    },
+    {
+      "hour_of_week": 27,
+      "fixed": 0.044553,
+      "deferrable": 0.194823,
+      "pausable": 1.096025
+    },
+    {
+      "hour_of_week": 28,
+      "fixed": 0.02486,
+      "deferrable": 0.139143,
+      "pausable": 1.185371
+    },
+    {
+      "hour_of_week": 29,
+      "fixed": 0.025413,
+      "deferrable": 0.180134,
+      "pausable": 1.20604
+    },
+    {
+      "hour_of_week": 30,
+      "fixed": 0.033498,
+      "deferrable": 0.125357,
+      "pausable": 0.940123
+    },
+    {
+      "hour_of_week": 31,
+      "fixed": 0.036256,
+      "deferrable": 0.15559,
+      "pausable": 1.166992
+    },
+    {
+      "hour_of_week": 32,
+      "fixed": 0.031138,
+      "deferrable": 0.135196,
+      "pausable": 0.857248
+    },
+    {
+      "hour_of_week": 33,
+      "fixed": 0.031761,
+      "deferrable": 0.259862,
+      "pausable": 0.76168
+    },
+    {
+      "hour_of_week": 34,
+      "fixed": 0.036779,
+      "deferrable": 0.355883,
+      "pausable": 0.808214
+    },
+    {
+      "hour_of_week": 35,
+      "fixed": 0.034612,
+      "deferrable": 0.1119,
+      "pausable": 0.584656
+    },
+    {
+      "hour_of_week": 36,
+      "fixed": 0.023047,
+      "deferrable": 0.11231,
+      "pausable": 1.037443
+    },
+    {
+      "hour_of_week": 37,
+      "fixed": 0.017461,
+      "deferrable": 0.145126,
+      "pausable": 0.615481
+    },
+    {
+      "hour_of_week": 38,
+      "fixed": 0.017014,
+      "deferrable": 0.085947,
+      "pausable": 0.727453
+    },
+    {
+      "hour_of_week": 39,
+      "fixed": 0.014555,
+      "deferrable": 0.062204,
+      "pausable": 0.664502
+    },
+    {
+      "hour_of_week": 40,
+      "fixed": 0.0401,
+      "deferrable": 0.16562,
+      "pausable": 1.099028
+    },
+    {
+      "hour_of_week": 41,
+      "fixed": 0.027696,
+      "deferrable": 0.30425,
+      "pausable": 0.839281
+    },
+    {
+      "hour_of_week": 42,
+      "fixed": 0.016332,
+      "deferrable": 0.413995,
+      "pausable": 0.50917
+    },
+    {
+      "hour_of_week": 43,
+      "fixed": 0.016135,
+      "deferrable": 0.164084,
+      "pausable": 0.906027
+    },
+    {
+      "hour_of_week": 44,
+      "fixed": 0.021923,
+      "deferrable": 0.139022,
+      "pausable": 0.865227
+    },
+    {
+      "hour_of_week": 45,
+      "fixed": 0.026726,
+      "deferrable": 0.142216,
+      "pausable": 0.641346
+    },
+    {
+      "hour_of_week": 46,
+      "fixed": 0.028633,
+      "deferrable": 0.201969,
+      "pausable": 0.794276
+    },
+    {
+      "hour_of_week": 47,
+      "fixed": 0.034944,
+      "deferrable": 0.157401,
+      "pausable": 0.662769
+    },
+    {
+      "hour_of_week": 48,
+      "fixed": 0.030766,
+      "deferrable": 0.155652,
+      "pausable": 0.772102
+    },
+    {
+      "hour_of_week": 49,
+      "fixed": 0.02115,
+      "deferrable": 0.15808,
+      "pausable": 0.648692
+    },
+    {
+      "hour_of_week": 50,
+      "fixed": 0.022057,
+      "deferrable": 0.192989,
+      "pausable": 0.548143
+    },
+    {
+      "hour_of_week": 51,
+      "fixed": 0.018139,
+      "deferrable": 0.154695,
+      "pausable": 1.184016
+    },
+    {
+      "hour_of_week": 52,
+      "fixed": 0.018428,
+      "deferrable": 0.111505,
+      "pausable": 1.338011
+    },
+    {
+      "hour_of_week": 53,
+      "fixed": 0.020026,
+      "deferrable": 0.109057,
+      "pausable": 0.850558
+    },
+    {
+      "hour_of_week": 54,
+      "fixed": 0.018425,
+      "deferrable": 0.108464,
+      "pausable": 0.438345
+    },
+    {
+      "hour_of_week": 55,
+      "fixed": 0.01808,
+      "deferrable": 0.114284,
+      "pausable": 0.554977
+    },
+    {
+      "hour_of_week": 56,
+      "fixed": 0.020261,
+      "deferrable": 0.052069,
+      "pausable": 0.946467
+    },
+    {
+      "hour_of_week": 57,
+      "fixed": 0.019018,
+      "deferrable": 0.169122,
+      "pausable": 0.481902
+    },
+    {
+      "hour_of_week": 58,
+      "fixed": 0.018776,
+      "deferrable": 0.233894,
+      "pausable": 0.355832
+    },
+    {
+      "hour_of_week": 59,
+      "fixed": 0.017571,
+      "deferrable": 0.079959,
+      "pausable": 0.439635
+    },
+    {
+      "hour_of_week": 60,
+      "fixed": 0.015036,
+      "deferrable": 0.086212,
+      "pausable": 0.393785
+    },
+    {
+      "hour_of_week": 61,
+      "fixed": 0.011747,
+      "deferrable": 0.111834,
+      "pausable": 0.318701
+    },
+    {
+      "hour_of_week": 62,
+      "fixed": 0.01467,
+      "deferrable": 0.07794,
+      "pausable": 0.620307
+    },
+    {
+      "hour_of_week": 63,
+      "fixed": 0.012806,
+      "deferrable": 0.054491,
+      "pausable": 0.651689
+    },
+    {
+      "hour_of_week": 64,
+      "fixed": 0.042881,
+      "deferrable": 0.150948,
+      "pausable": 1.374443
+    },
+    {
+      "hour_of_week": 65,
+      "fixed": 0.032699,
+      "deferrable": 0.23566,
+      "pausable": 0.606871
+    },
+    {
+      "hour_of_week": 66,
+      "fixed": 0.010493,
+      "deferrable": 0.316735,
+      "pausable": 0.580973
+    },
+    {
+      "hour_of_week": 67,
+      "fixed": 0.014274,
+      "deferrable": 0.123393,
+      "pausable": 1.073983
+    },
+    {
+      "hour_of_week": 68,
+      "fixed": 0.020362,
+      "deferrable": 0.137073,
+      "pausable": 0.836333
+    },
+    {
+      "hour_of_week": 69,
+      "fixed": 0.031474,
+      "deferrable": 0.180727,
+      "pausable": 0.635643
+    },
+    {
+      "hour_of_week": 70,
+      "fixed": 0.042194,
+      "deferrable": 0.139069,
+      "pausable": 0.718979
+    },
+    {
+      "hour_of_week": 71,
+      "fixed": 0.028064,
+      "deferrable": 0.141938,
+      "pausable": 0.71682
+    },
+    {
+      "hour_of_week": 72,
+      "fixed": 0.020043,
+      "deferrable": 0.18159,
+      "pausable": 0.600353
+    },
+    {
+      "hour_of_week": 73,
+      "fixed": 0.019441,
+      "deferrable": 0.166689,
+      "pausable": 0.618065
+    },
+    {
+      "hour_of_week": 74,
+      "fixed": 0.0264,
+      "deferrable": 0.144598,
+      "pausable": 0.687365
+    },
+    {
+      "hour_of_week": 75,
+      "fixed": 0.0241,
+      "deferrable": 0.153905,
+      "pausable": 0.992832
+    },
+    {
+      "hour_of_week": 76,
+      "fixed": 0.019048,
+      "deferrable": 0.121716,
+      "pausable": 1.164251
+    },
+    {
+      "hour_of_week": 77,
+      "fixed": 0.02012,
+      "deferrable": 0.097549,
+      "pausable": 0.554613
+    },
+    {
+      "hour_of_week": 78,
+      "fixed": 0.01742,
+      "deferrable": 0.110551,
+      "pausable": 0.649242
+    },
+    {
+      "hour_of_week": 79,
+      "fixed": 0.015912,
+      "deferrable": 0.124577,
+      "pausable": 0.425794
+    },
+    {
+      "hour_of_week": 80,
+      "fixed": 0.026089,
+      "deferrable": 0.088764,
+      "pausable": 0.357786
+    },
+    {
+      "hour_of_week": 81,
+      "fixed": 0.020012,
+      "deferrable": 0.224924,
+      "pausable": 0.353043
+    },
+    {
+      "hour_of_week": 82,
+      "fixed": 0.021817,
+      "deferrable": 0.180385,
+      "pausable": 0.333543
+    },
+    {
+      "hour_of_week": 83,
+      "fixed": 0.028198,
+      "deferrable": 0.089258,
+      "pausable": 0.259768
+    },
+    {
+      "hour_of_week": 84,
+      "fixed": 0.017974,
+      "deferrable": 0.098049,
+      "pausable": 0.566239
+    },
+    {
+      "hour_of_week": 85,
+      "fixed": 0.016679,
+      "deferrable": 0.119336,
+      "pausable": 0.69836
+    },
+    {
+      "hour_of_week": 86,
+      "fixed": 0.016403,
+      "deferrable": 0.06382,
+      "pausable": 0.671962
+    },
+    {
+      "hour_of_week": 87,
+      "fixed": 0.014878,
+      "deferrable": 0.083478,
+      "pausable": 0.636312
+    },
+    {
+      "hour_of_week": 88,
+      "fixed": 0.046782,
+      "deferrable": 0.190682,
+      "pausable": 1.115091
+    },
+    {
+      "hour_of_week": 89,
+      "fixed": 0.023084,
+      "deferrable": 0.244538,
+      "pausable": 0.572719
+    },
+    {
+      "hour_of_week": 90,
+      "fixed": 0.014025,
+      "deferrable": 0.337982,
+      "pausable": 0.555723
+    },
+    {
+      "hour_of_week": 91,
+      "fixed": 0.014194,
+      "deferrable": 0.142825,
+      "pausable": 0.839181
+    },
+    {
+      "hour_of_week": 92,
+      "fixed": 0.018474,
+      "deferrable": 0.132817,
+      "pausable": 0.627188
+    },
+    {
+      "hour_of_week": 93,
+      "fixed": 0.030675,
+      "deferrable": 0.157777,
+      "pausable": 0.73007
+    },
+    {
+      "hour_of_week": 94,
+      "fixed": 0.039998,
+      "deferrable": 0.146425,
+      "pausable": 0.641755
+    },
+    {
+      "hour_of_week": 95,
+      "fixed": 0.035268,
+      "deferrable": 0.120528,
+      "pausable": 0.53004
+    },
+    {
+      "hour_of_week": 96,
+      "fixed": 0.02246,
+      "deferrable": 0.159716,
+      "pausable": 0.726279
+    },
+    {
+      "hour_of_week": 97,
+      "fixed": 0.030452,
+      "deferrable": 0.167998,
+      "pausable": 0.63519
+    },
+    {
+      "hour_of_week": 98,
+      "fixed": 0.047568,
+      "deferrable": 0.242524,
+      "pausable": 1.043875
+    },
+    {
+      "hour_of_week": 99,
+      "fixed": 0.045332,
+      "deferrable": 0.202365,
+      "pausable": 1.540969
+    },
+    {
+      "hour_of_week": 100,
+      "fixed": 0.043176,
+      "deferrable": 0.167482,
+      "pausable": 1.041826
+    },
+    {
+      "hour_of_week": 101,
+      "fixed": 0.02739,
+      "deferrable": 0.209909,
+      "pausable": 0.615142
+    },
+    {
+      "hour_of_week": 102,
+      "fixed": 0.03875,
+      "deferrable": 0.222155,
+      "pausable": 0.83019
+    },
+    {
+      "hour_of_week": 103,
+      "fixed": 0.039118,
+      "deferrable": 0.182681,
+      "pausable": 0.796701
+    },
+    {
+      "hour_of_week": 104,
+      "fixed": 0.045427,
+      "deferrable": 0.204934,
+      "pausable": 0.595886
+    },
+    {
+      "hour_of_week": 105,
+      "fixed": 0.039741,
+      "deferrable": 0.239785,
+      "pausable": 0.681681
+    },
+    {
+      "hour_of_week": 106,
+      "fixed": 0.028621,
+      "deferrable": 0.304871,
+      "pausable": 0.42709
+    },
+    {
+      "hour_of_week": 107,
+      "fixed": 0.034998,
+      "deferrable": 0.183553,
+      "pausable": 0.483929
+    },
+    {
+      "hour_of_week": 108,
+      "fixed": 0.032173,
+      "deferrable": 0.161706,
+      "pausable": 0.738206
+    },
+    {
+      "hour_of_week": 109,
+      "fixed": 0.026583,
+      "deferrable": 0.12492,
+      "pausable": 0.71113
+    },
+    {
+      "hour_of_week": 110,
+      "fixed": 0.018478,
+      "deferrable": 0.112844,
+      "pausable": 0.607563
+    },
+    {
+      "hour_of_week": 111,
+      "fixed": 0.017612,
+      "deferrable": 0.176641,
+      "pausable": 0.738005
+    },
+    {
+      "hour_of_week": 112,
+      "fixed": 0.042062,
+      "deferrable": 0.188783,
+      "pausable": 0.941198
+    },
+    {
+      "hour_of_week": 113,
+      "fixed": 0.020458,
+      "deferrable": 0.335042,
+      "pausable": 0.619308
+    },
+    {
+      "hour_of_week": 114,
+      "fixed": 0.010543,
+      "deferrable": 0.353689,
+      "pausable": 0.872463
+    },
+    {
+      "hour_of_week": 115,
+      "fixed": 0.013036,
+      "deferrable": 0.161709,
+      "pausable": 0.848196
+    },
+    {
+      "hour_of_week": 116,
+      "fixed": 0.019226,
+      "deferrable": 0.12664,
+      "pausable": 0.725764
+    },
+    {
+      "hour_of_week": 117,
+      "fixed": 0.018835,
+      "deferrable": 0.137943,
+      "pausable": 0.584305
+    },
+    {
+      "hour_of_week": 118,
+      "fixed": 0.028389,
+      "deferrable": 0.139874,
+      "pausable": 0.601017
+    },
+    {
+      "hour_of_week": 119,
+      "fixed": 0.031117,
+      "deferrable": 0.129811,
+      "pausable": 0.532507
+    },
+    {
+      "hour_of_week": 120,
+      "fixed": 0.022218,
+      "deferrable": 0.238972,
+      "pausable": 0.587111
+    },
+    {
+      "hour_of_week": 121,
+      "fixed": 0.025651,
+      "deferrable": 0.191128,
+      "pausable": 0.676769
+    },
+    {
+      "hour_of_week": 122,
+      "fixed": 0.039419,
+      "deferrable": 0.218773,
+      "pausable": 1.747964
+    },
+    {
+      "hour_of_week": 123,
+      "fixed": 0.036395,
+      "deferrable": 0.172659,
+      "pausable": 1.541155
+    },
+    {
+      "hour_of_week": 124,
+      "fixed": 0.027177,
+      "deferrable": 0.134051,
+      "pausable": 1.113199
+    },
+    {
+      "hour_of_week": 125,
+      "fixed": 0.02653,
+      "deferrable": 0.137208,
+      "pausable": 1.17183
+    },
+    {
+      "hour_of_week": 126,
+      "fixed": 0.032451,
+      "deferrable": 0.142383,
+      "pausable": 0.567997
+    },
+    {
+      "hour_of_week": 127,
+      "fixed": 0.036047,
+      "deferrable": 0.202193,
+      "pausable": 0.886828
+    },
+    {
+      "hour_of_week": 128,
+      "fixed": 0.036716,
+      "deferrable": 0.159463,
+      "pausable": 0.678546
+    },
+    {
+      "hour_of_week": 129,
+      "fixed": 0.038446,
+      "deferrable": 0.233486,
+      "pausable": 0.717566
+    },
+    {
+      "hour_of_week": 130,
+      "fixed": 0.037642,
+      "deferrable": 0.272131,
+      "pausable": 0.544269
+    },
+    {
+      "hour_of_week": 131,
+      "fixed": 0.032312,
+      "deferrable": 0.189138,
+      "pausable": 0.56117
+    },
+    {
+      "hour_of_week": 132,
+      "fixed": 0.025891,
+      "deferrable": 0.167282,
+      "pausable": 0.678291
+    },
+    {
+      "hour_of_week": 133,
+      "fixed": 0.021345,
+      "deferrable": 0.155209,
+      "pausable": 0.569652
+    },
+    {
+      "hour_of_week": 134,
+      "fixed": 0.021751,
+      "deferrable": 0.085032,
+      "pausable": 1.131259
+    },
+    {
+      "hour_of_week": 135,
+      "fixed": 0.015975,
+      "deferrable": 0.095511,
+      "pausable": 0.620969
+    },
+    {
+      "hour_of_week": 136,
+      "fixed": 0.040575,
+      "deferrable": 0.215193,
+      "pausable": 1.325107
+    },
+    {
+      "hour_of_week": 137,
+      "fixed": 0.025612,
+      "deferrable": 0.307049,
+      "pausable": 0.59385
+    },
+    {
+      "hour_of_week": 138,
+      "fixed": 0.013867,
+      "deferrable": 0.310898,
+      "pausable": 0.948772
+    },
+    {
+      "hour_of_week": 139,
+      "fixed": 0.013729,
+      "deferrable": 0.12575,
+      "pausable": 0.704214
+    },
+    {
+      "hour_of_week": 140,
+      "fixed": 0.019226,
+      "deferrable": 0.121845,
+      "pausable": 0.800707
+    },
+    {
+      "hour_of_week": 141,
+      "fixed": 0.017607,
+      "deferrable": 0.143742,
+      "pausable": 0.959297
+    },
+    {
+      "hour_of_week": 142,
+      "fixed": 0.033676,
+      "deferrable": 0.151997,
+      "pausable": 0.659051
+    },
+    {
+      "hour_of_week": 143,
+      "fixed": 0.028769,
+      "deferrable": 0.128333,
+      "pausable": 0.515364
+    },
+    {
+      "hour_of_week": 144,
+      "fixed": 0.023013,
+      "deferrable": 0.137119,
+      "pausable": 0.54385
+    },
+    {
+      "hour_of_week": 145,
+      "fixed": 0.028146,
+      "deferrable": 0.204087,
+      "pausable": 0.704299
+    },
+    {
+      "hour_of_week": 146,
+      "fixed": 0.056807,
+      "deferrable": 0.216622,
+      "pausable": 1.190553
+    },
+    {
+      "hour_of_week": 147,
+      "fixed": 0.048103,
+      "deferrable": 0.263533,
+      "pausable": 1.410138
+    },
+    {
+      "hour_of_week": 148,
+      "fixed": 0.031125,
+      "deferrable": 0.16581,
+      "pausable": 1.090693
+    },
+    {
+      "hour_of_week": 149,
+      "fixed": 0.032987,
+      "deferrable": 0.168251,
+      "pausable": 1.025816
+    },
+    {
+      "hour_of_week": 150,
+      "fixed": 0.034984,
+      "deferrable": 0.140777,
+      "pausable": 0.98585
+    },
+    {
+      "hour_of_week": 151,
+      "fixed": 0.035476,
+      "deferrable": 0.231024,
+      "pausable": 1.014101
+    },
+    {
+      "hour_of_week": 152,
+      "fixed": 0.033773,
+      "deferrable": 0.157949,
+      "pausable": 0.929089
+    },
+    {
+      "hour_of_week": 153,
+      "fixed": 0.039154,
+      "deferrable": 0.243735,
+      "pausable": 0.920135
+    },
+    {
+      "hour_of_week": 154,
+      "fixed": 0.027222,
+      "deferrable": 0.322982,
+      "pausable": 0.870228
+    },
+    {
+      "hour_of_week": 155,
+      "fixed": 0.032909,
+      "deferrable": 0.166776,
+      "pausable": 0.806215
+    },
+    {
+      "hour_of_week": 156,
+      "fixed": 0.033379,
+      "deferrable": 0.186236,
+      "pausable": 1.022789
+    },
+    {
+      "hour_of_week": 157,
+      "fixed": 0.021263,
+      "deferrable": 0.185812,
+      "pausable": 0.662873
+    },
+    {
+      "hour_of_week": 158,
+      "fixed": 0.014812,
+      "deferrable": 0.083822,
+      "pausable": 0.719933
+    },
+    {
+      "hour_of_week": 159,
+      "fixed": 0.020936,
+      "deferrable": 0.129123,
+      "pausable": 1.129326
+    },
+    {
+      "hour_of_week": 160,
+      "fixed": 0.049568,
+      "deferrable": 0.306395,
+      "pausable": 1.578607
+    },
+    {
+      "hour_of_week": 161,
+      "fixed": 0.025232,
+      "deferrable": 0.283662,
+      "pausable": 0.990957
+    },
+    {
+      "hour_of_week": 162,
+      "fixed": 0.015887,
+      "deferrable": 0.293597,
+      "pausable": 0.842238
+    },
+    {
+      "hour_of_week": 163,
+      "fixed": 0.015504,
+      "deferrable": 0.130788,
+      "pausable": 1.025983
+    },
+    {
+      "hour_of_week": 164,
+      "fixed": 0.020353,
+      "deferrable": 0.205088,
+      "pausable": 0.679825
+    },
+    {
+      "hour_of_week": 165,
+      "fixed": 0.017746,
+      "deferrable": 0.144279,
+      "pausable": 0.887464
+    },
+    {
+      "hour_of_week": 166,
+      "fixed": 0.041773,
+      "deferrable": 0.160001,
+      "pausable": 0.69256
+    },
+    {
+      "hour_of_week": 167,
+      "fixed": 0.02656,
+      "deferrable": 0.126836,
+      "pausable": 0.472168
+    }
+  ]
+}

@@ -7,3 +7,9 @@ out
 *.log
 tsconfig.tsbuildinfo
 next-env.d.ts
+backend/.venv
+backend/data/raw
+**/__pycache__
+*.pyc
+.pytest_cache
+.agents/

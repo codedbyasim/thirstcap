@@ -1,8 +1,9 @@
 export const tooltipStyle = {
-  background: "#fffcf7",
-  border: "1px solid #e4ddd0",
-  borderRadius: 12,
+  backgroundColor: "#FFFFFF",
+  border: "1px solid #D8E2EC",
+  borderRadius: 6,
   fontSize: 12,
-  color: "#142326",
-  boxShadow: "0 12px 30px -20px rgba(20,35,38,0.6)",
+  color: "#0F172A",
+  boxShadow: "0 8px 20px -8px rgba(11, 31, 51, 0.18)",
+  fontFamily: "var(--font-mono), ui-monospace, monospace",
 };
