@@ -37,7 +37,7 @@ const LEVERS = [
     id: "time",
     icon: Cpu,
     title: "Batch Time-Shifting",
-    badge: "0 MWh Extra Power",
+    badge: "−18h to +24h window",
     color: "text-sky-600 bg-sky-50 border-sky-200",
     detail:
       "Reschedules deferrable & pausable AI training jobs (-18h to +24h window) out of hot afternoon peaks into cool overnight wet-bulb hours.",
@@ -48,7 +48,7 @@ const LEVERS = [
     id: "space",
     icon: Globe,
     title: "Cross-Basin GPU Failover",
-    badge: "Sister-Cap 110% Guard",
+    badge: "Model sister cap 110%",
     color: "text-emerald-700 bg-emerald-50 border-emerald-200",
     detail:
       "Routes flexible training bursts from water-stressed hubs (Phoenix -> Des Moines, Zaragoza -> Bilbao, Dubai -> Frankfurt) when destination basins are cooler.",
@@ -59,7 +59,7 @@ const LEVERS = [
     id: "tank",
     icon: Database,
     title: "Thermal & Make-Up Tank",
-    badge: "0.15 yr Avg Payback",
+    badge: "$2.50/gal model cost",
     color: "text-indigo-700 bg-indigo-50 border-indigo-200",
     detail:
       "Fills on-site storage overnight and discharges cleanly across afternoon heat spikes so the municipal meter never crosses its daily firm withdrawal cap.",
@@ -70,10 +70,10 @@ const LEVERS = [
     id: "swap",
     icon: Droplets,
     title: "Grid-Safe Dry Swap & TSE",
-    badge: "0 MW on Grid Peak",
+    badge: "Off during grid peaks",
     color: "text-amber-700 bg-amber-50 border-amber-200",
     detail:
-      "Engages dry-cooler adiabatic trim strictly outside top-15% utility grid peak hours while blending Reclaimed / TSE water to lock EU EED Grade A/B compliance.",
+      "The MILP blocks dry-cooler swaps during the top grid-stress hours and can blend a reclaimed share. The EU EED letter is computed from that solve, not guaranteed.",
     protocol: "BACnet / Modbus Chiller & Tower Control",
   },
 ];

@@ -1,0 +1,645 @@
+{
+  "scenario": "Registry 2026 peak windows, default tank knobs, swaps off.",
+  "sites": {
+    "phoenix": {
+      "site_id": "phoenix",
+      "site_name": "Phoenix / Mesa",
+      "recommended_tank_gal": 160000.0,
+      "tank_cost_per_gal_usd": 2.5,
+      "points": [
+        {
+          "tank_gallons": 0.0,
+          "peak_day_gal": 650474.0,
+          "peak_cut_pct": 19.99,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4061687.0,
+          "est_tank_build_cost_usd": 0.0,
+          "net_capex_benefit_usd": 4061687.0
+        },
+        {
+          "tank_gallons": 20000.0,
+          "peak_day_gal": 639024.0,
+          "peak_cut_pct": 21.39,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4347930.0,
+          "est_tank_build_cost_usd": 50000.0,
+          "net_capex_benefit_usd": 4297930.0
+        },
+        {
+          "tank_gallons": 40000.0,
+          "peak_day_gal": 629024.0,
+          "peak_cut_pct": 22.62,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4597930.0,
+          "est_tank_build_cost_usd": 100000.0,
+          "net_capex_benefit_usd": 4497930.0
+        },
+        {
+          "tank_gallons": 80000.0,
+          "peak_day_gal": 609024.0,
+          "peak_cut_pct": 25.08,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5097930.0,
+          "est_tank_build_cost_usd": 200000.0,
+          "net_capex_benefit_usd": 4897930.0
+        },
+        {
+          "tank_gallons": 120000.0,
+          "peak_day_gal": 589024.0,
+          "peak_cut_pct": 27.54,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5597930.0,
+          "est_tank_build_cost_usd": 300000.0,
+          "net_capex_benefit_usd": 5297930.0
+        },
+        {
+          "tank_gallons": 160000.0,
+          "peak_day_gal": 569024.0,
+          "peak_cut_pct": 30.0,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 6097930.0,
+          "est_tank_build_cost_usd": 400000.0,
+          "net_capex_benefit_usd": 5697930.0
+        }
+      ],
+      "data_source": "precomputed",
+      "note": "Precomputed 6-point CBC tank sweep for Phoenix / Mesa (2026-07-13 to 2026-07-19). Swaps off, cap unconstrained, flexible share 0.20, physical plant, 100 MW, CoC 4, $85/MWh. Tank build cost is the model constant $2.50/gal. Avoided capex uses Han et al. 2026, $10M\u2013$40M per MGD."
+    },
+    "northern-virginia": {
+      "site_id": "northern-virginia",
+      "site_name": "Northern Virginia",
+      "recommended_tank_gal": 80000.0,
+      "tank_cost_per_gal_usd": 2.5,
+      "points": [
+        {
+          "tank_gallons": 0.0,
+          "peak_day_gal": 523634.0,
+          "peak_cut_pct": 19.98,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 3267959.0,
+          "est_tank_build_cost_usd": 0.0,
+          "net_capex_benefit_usd": 3267959.0
+        },
+        {
+          "tank_gallons": 20000.0,
+          "peak_day_gal": 503634.0,
+          "peak_cut_pct": 23.03,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 3767959.0,
+          "est_tank_build_cost_usd": 50000.0,
+          "net_capex_benefit_usd": 3717959.0
+        },
+        {
+          "tank_gallons": 40000.0,
+          "peak_day_gal": 483634.0,
+          "peak_cut_pct": 26.09,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4267959.0,
+          "est_tank_build_cost_usd": 100000.0,
+          "net_capex_benefit_usd": 4167959.0
+        },
+        {
+          "tank_gallons": 80000.0,
+          "peak_day_gal": 458781.0,
+          "peak_cut_pct": 29.89,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4889294.0,
+          "est_tank_build_cost_usd": 200000.0,
+          "net_capex_benefit_usd": 4689294.0
+        },
+        {
+          "tank_gallons": 120000.0,
+          "peak_day_gal": 458781.0,
+          "peak_cut_pct": 29.89,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4889294.0,
+          "est_tank_build_cost_usd": 300000.0,
+          "net_capex_benefit_usd": 4589294.0
+        },
+        {
+          "tank_gallons": 160000.0,
+          "peak_day_gal": 458781.0,
+          "peak_cut_pct": 29.89,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4889294.0,
+          "est_tank_build_cost_usd": 400000.0,
+          "net_capex_benefit_usd": 4489294.0
+        }
+      ],
+      "data_source": "precomputed",
+      "note": "Precomputed 6-point CBC tank sweep for Northern Virginia (2026-07-13 to 2026-07-19). Swaps off, cap unconstrained, flexible share 0.20, physical plant, 100 MW, CoC 4, $85/MWh. Tank build cost is the model constant $2.50/gal. Avoided capex uses Han et al. 2026, $10M\u2013$40M per MGD."
+    },
+    "des-moines": {
+      "site_id": "des-moines",
+      "site_name": "Des Moines",
+      "recommended_tank_gal": 20000.0,
+      "tank_cost_per_gal_usd": 2.5,
+      "points": [
+        {
+          "tank_gallons": 0.0,
+          "peak_day_gal": 454037.0,
+          "peak_cut_pct": 20.0,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 2837525.0,
+          "est_tank_build_cost_usd": 0.0,
+          "net_capex_benefit_usd": 2837525.0
+        },
+        {
+          "tank_gallons": 20000.0,
+          "peak_day_gal": 434037.0,
+          "peak_cut_pct": 23.52,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 3337525.0,
+          "est_tank_build_cost_usd": 50000.0,
+          "net_capex_benefit_usd": 3287525.0
+        },
+        {
+          "tank_gallons": 40000.0,
+          "peak_day_gal": 454037.0,
+          "peak_cut_pct": 20.0,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 2837525.0,
+          "est_tank_build_cost_usd": 100000.0,
+          "net_capex_benefit_usd": 2737525.0
+        },
+        {
+          "tank_gallons": 80000.0,
+          "peak_day_gal": 454037.0,
+          "peak_cut_pct": 20.0,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 2837525.0,
+          "est_tank_build_cost_usd": 200000.0,
+          "net_capex_benefit_usd": 2637525.0
+        },
+        {
+          "tank_gallons": 120000.0,
+          "peak_day_gal": 454037.0,
+          "peak_cut_pct": 20.0,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 2837525.0,
+          "est_tank_build_cost_usd": 300000.0,
+          "net_capex_benefit_usd": 2537525.0
+        },
+        {
+          "tank_gallons": 160000.0,
+          "peak_day_gal": 454037.0,
+          "peak_cut_pct": 20.0,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 2837525.0,
+          "est_tank_build_cost_usd": 400000.0,
+          "net_capex_benefit_usd": 2437525.0
+        }
+      ],
+      "data_source": "precomputed",
+      "note": "Precomputed 6-point CBC tank sweep for Des Moines (2026-07-13 to 2026-07-19). Swaps off, cap unconstrained, flexible share 0.20, physical plant, 100 MW, CoC 4, $85/MWh. Tank build cost is the model constant $2.50/gal. Avoided capex uses Han et al. 2026, $10M\u2013$40M per MGD."
+    },
+    "queretaro": {
+      "site_id": "queretaro",
+      "site_name": "Quer\u00e9taro",
+      "recommended_tank_gal": 120000.0,
+      "tank_cost_per_gal_usd": 2.5,
+      "points": [
+        {
+          "tank_gallons": 0.0,
+          "peak_day_gal": 157889.0,
+          "peak_cut_pct": 20.06,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 990488.0,
+          "est_tank_build_cost_usd": 0.0,
+          "net_capex_benefit_usd": 990488.0
+        },
+        {
+          "tank_gallons": 20000.0,
+          "peak_day_gal": 137889.0,
+          "peak_cut_pct": 30.19,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 1490488.0,
+          "est_tank_build_cost_usd": 50000.0,
+          "net_capex_benefit_usd": 1440488.0
+        },
+        {
+          "tank_gallons": 40000.0,
+          "peak_day_gal": 117889.0,
+          "peak_cut_pct": 40.31,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 1990488.0,
+          "est_tank_build_cost_usd": 100000.0,
+          "net_capex_benefit_usd": 1890488.0
+        },
+        {
+          "tank_gallons": 80000.0,
+          "peak_day_gal": 104420.0,
+          "peak_cut_pct": 47.13,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 2327218.0,
+          "est_tank_build_cost_usd": 200000.0,
+          "net_capex_benefit_usd": 2127218.0
+        },
+        {
+          "tank_gallons": 120000.0,
+          "peak_day_gal": 95531.0,
+          "peak_cut_pct": 51.63,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 2549441.0,
+          "est_tank_build_cost_usd": 300000.0,
+          "net_capex_benefit_usd": 2249441.0
+        },
+        {
+          "tank_gallons": 160000.0,
+          "peak_day_gal": 100733.0,
+          "peak_cut_pct": 49.0,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 2419388.0,
+          "est_tank_build_cost_usd": 400000.0,
+          "net_capex_benefit_usd": 2019388.0
+        }
+      ],
+      "data_source": "precomputed",
+      "note": "Precomputed 6-point CBC tank sweep for Quer\u00e9taro (2026-05-11 to 2026-05-17). Swaps off, cap unconstrained, flexible share 0.20, physical plant, 100 MW, CoC 4, $85/MWh. Tank build cost is the model constant $2.50/gal. Avoided capex uses Han et al. 2026, $10M\u2013$40M per MGD."
+    },
+    "santiago": {
+      "site_id": "santiago",
+      "site_name": "Santiago / Cerrillos",
+      "recommended_tank_gal": 80000.0,
+      "tank_cost_per_gal_usd": 2.5,
+      "points": [
+        {
+          "tank_gallons": 0.0,
+          "peak_day_gal": 98469.0,
+          "peak_cut_pct": 20.05,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 617341.0,
+          "est_tank_build_cost_usd": 0.0,
+          "net_capex_benefit_usd": 617341.0
+        },
+        {
+          "tank_gallons": 20000.0,
+          "peak_day_gal": 78469.0,
+          "peak_cut_pct": 36.29,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 1117341.0,
+          "est_tank_build_cost_usd": 50000.0,
+          "net_capex_benefit_usd": 1067341.0
+        },
+        {
+          "tank_gallons": 40000.0,
+          "peak_day_gal": 67728.0,
+          "peak_cut_pct": 45.01,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 1385873.0,
+          "est_tank_build_cost_usd": 100000.0,
+          "net_capex_benefit_usd": 1285873.0
+        },
+        {
+          "tank_gallons": 80000.0,
+          "peak_day_gal": 62649.0,
+          "peak_cut_pct": 49.13,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 1512853.0,
+          "est_tank_build_cost_usd": 200000.0,
+          "net_capex_benefit_usd": 1312853.0
+        },
+        {
+          "tank_gallons": 120000.0,
+          "peak_day_gal": 59686.0,
+          "peak_cut_pct": 51.54,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 1586927.0,
+          "est_tank_build_cost_usd": 300000.0,
+          "net_capex_benefit_usd": 1286927.0
+        },
+        {
+          "tank_gallons": 160000.0,
+          "peak_day_gal": 55861.0,
+          "peak_cut_pct": 54.64,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 1682551.0,
+          "est_tank_build_cost_usd": 400000.0,
+          "net_capex_benefit_usd": 1282551.0
+        }
+      ],
+      "data_source": "precomputed",
+      "note": "Precomputed 6-point CBC tank sweep for Santiago / Cerrillos (2026-01-19 to 2026-01-25). Swaps off, cap unconstrained, flexible share 0.20, physical plant, 100 MW, CoC 4, $85/MWh. Tank build cost is the model constant $2.50/gal. Avoided capex uses Han et al. 2026, $10M\u2013$40M per MGD."
+    },
+    "zaragoza": {
+      "site_id": "zaragoza",
+      "site_name": "Zaragoza / Arag\u00f3n",
+      "recommended_tank_gal": 120000.0,
+      "tank_cost_per_gal_usd": 2.5,
+      "points": [
+        {
+          "tank_gallons": 0.0,
+          "peak_day_gal": 571877.0,
+          "peak_cut_pct": 20.02,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 3578892.0,
+          "est_tank_build_cost_usd": 0.0,
+          "net_capex_benefit_usd": 3578892.0
+        },
+        {
+          "tank_gallons": 20000.0,
+          "peak_day_gal": 551877.0,
+          "peak_cut_pct": 22.82,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4078892.0,
+          "est_tank_build_cost_usd": 50000.0,
+          "net_capex_benefit_usd": 4028892.0
+        },
+        {
+          "tank_gallons": 40000.0,
+          "peak_day_gal": 531877.0,
+          "peak_cut_pct": 25.61,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4578892.0,
+          "est_tank_build_cost_usd": 100000.0,
+          "net_capex_benefit_usd": 4478892.0
+        },
+        {
+          "tank_gallons": 80000.0,
+          "peak_day_gal": 507544.0,
+          "peak_cut_pct": 29.02,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5187228.0,
+          "est_tank_build_cost_usd": 200000.0,
+          "net_capex_benefit_usd": 4987228.0
+        },
+        {
+          "tank_gallons": 120000.0,
+          "peak_day_gal": 487544.0,
+          "peak_cut_pct": 31.82,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5687228.0,
+          "est_tank_build_cost_usd": 300000.0,
+          "net_capex_benefit_usd": 5387228.0
+        },
+        {
+          "tank_gallons": 160000.0,
+          "peak_day_gal": 493463.0,
+          "peak_cut_pct": 30.99,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5539253.0,
+          "est_tank_build_cost_usd": 400000.0,
+          "net_capex_benefit_usd": 5139253.0
+        }
+      ],
+      "data_source": "precomputed",
+      "note": "Precomputed 6-point CBC tank sweep for Zaragoza / Arag\u00f3n (2026-07-13 to 2026-07-19). Swaps off, cap unconstrained, flexible share 0.20, physical plant, 100 MW, CoC 4, $85/MWh. Tank build cost is the model constant $2.50/gal. Avoided capex uses Han et al. 2026, $10M\u2013$40M per MGD."
+    },
+    "hyderabad": {
+      "site_id": "hyderabad",
+      "site_name": "Hyderabad",
+      "recommended_tank_gal": 80000.0,
+      "tank_cost_per_gal_usd": 2.5,
+      "points": [
+        {
+          "tank_gallons": 0.0,
+          "peak_day_gal": 679650.0,
+          "peak_cut_pct": 20.03,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4254606.0,
+          "est_tank_build_cost_usd": 0.0,
+          "net_capex_benefit_usd": 4254606.0
+        },
+        {
+          "tank_gallons": 20000.0,
+          "peak_day_gal": 659650.0,
+          "peak_cut_pct": 22.38,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4754606.0,
+          "est_tank_build_cost_usd": 50000.0,
+          "net_capex_benefit_usd": 4704606.0
+        },
+        {
+          "tank_gallons": 40000.0,
+          "peak_day_gal": 639650.0,
+          "peak_cut_pct": 24.73,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5254606.0,
+          "est_tank_build_cost_usd": 100000.0,
+          "net_capex_benefit_usd": 5154606.0
+        },
+        {
+          "tank_gallons": 80000.0,
+          "peak_day_gal": 630271.0,
+          "peak_cut_pct": 25.84,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5489069.0,
+          "est_tank_build_cost_usd": 200000.0,
+          "net_capex_benefit_usd": 5289069.0
+        },
+        {
+          "tank_gallons": 120000.0,
+          "peak_day_gal": 637793.0,
+          "peak_cut_pct": 24.95,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5301018.0,
+          "est_tank_build_cost_usd": 300000.0,
+          "net_capex_benefit_usd": 5001018.0
+        },
+        {
+          "tank_gallons": 160000.0,
+          "peak_day_gal": 630271.0,
+          "peak_cut_pct": 25.84,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5489069.0,
+          "est_tank_build_cost_usd": 400000.0,
+          "net_capex_benefit_usd": 5089069.0
+        }
+      ],
+      "data_source": "precomputed",
+      "note": "Precomputed 6-point CBC tank sweep for Hyderabad (2026-05-11 to 2026-05-17). Swaps off, cap unconstrained, flexible share 0.20, physical plant, 100 MW, CoC 4, $85/MWh. Tank build cost is the model constant $2.50/gal. Avoided capex uses Han et al. 2026, $10M\u2013$40M per MGD."
+    },
+    "dubai": {
+      "site_id": "dubai",
+      "site_name": "Dubai",
+      "recommended_tank_gal": 20000.0,
+      "tank_cost_per_gal_usd": 2.5,
+      "points": [
+        {
+          "tank_gallons": 0.0,
+          "peak_day_gal": 754559.0,
+          "peak_cut_pct": 20.03,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4724031.0,
+          "est_tank_build_cost_usd": 0.0,
+          "net_capex_benefit_usd": 4724031.0
+        },
+        {
+          "tank_gallons": 20000.0,
+          "peak_day_gal": 734559.0,
+          "peak_cut_pct": 22.15,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5224031.0,
+          "est_tank_build_cost_usd": 50000.0,
+          "net_capex_benefit_usd": 5174031.0
+        },
+        {
+          "tank_gallons": 40000.0,
+          "peak_day_gal": 754559.0,
+          "peak_cut_pct": 20.03,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4724031.0,
+          "est_tank_build_cost_usd": 100000.0,
+          "net_capex_benefit_usd": 4624031.0
+        },
+        {
+          "tank_gallons": 80000.0,
+          "peak_day_gal": 754559.0,
+          "peak_cut_pct": 20.03,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4724031.0,
+          "est_tank_build_cost_usd": 200000.0,
+          "net_capex_benefit_usd": 4524031.0
+        },
+        {
+          "tank_gallons": 120000.0,
+          "peak_day_gal": 754559.0,
+          "peak_cut_pct": 20.03,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4724031.0,
+          "est_tank_build_cost_usd": 300000.0,
+          "net_capex_benefit_usd": 4424031.0
+        },
+        {
+          "tank_gallons": 160000.0,
+          "peak_day_gal": 754559.0,
+          "peak_cut_pct": 20.03,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4724031.0,
+          "est_tank_build_cost_usd": 400000.0,
+          "net_capex_benefit_usd": 4324031.0
+        }
+      ],
+      "data_source": "precomputed",
+      "note": "Precomputed 6-point CBC tank sweep for Dubai (2026-07-20 to 2026-07-26). Swaps off, cap unconstrained, flexible share 0.20, physical plant, 100 MW, CoC 4, $85/MWh. Tank build cost is the model constant $2.50/gal. Avoided capex uses Han et al. 2026, $10M\u2013$40M per MGD."
+    },
+    "lahore": {
+      "site_id": "lahore",
+      "site_name": "Lahore",
+      "recommended_tank_gal": 160000.0,
+      "tank_cost_per_gal_usd": 2.5,
+      "points": [
+        {
+          "tank_gallons": 0.0,
+          "peak_day_gal": 632409.0,
+          "peak_cut_pct": 20.02,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 3956427.0,
+          "est_tank_build_cost_usd": 0.0,
+          "net_capex_benefit_usd": 3956427.0
+        },
+        {
+          "tank_gallons": 20000.0,
+          "peak_day_gal": 614659.0,
+          "peak_cut_pct": 22.26,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4400173.0,
+          "est_tank_build_cost_usd": 50000.0,
+          "net_capex_benefit_usd": 4350173.0
+        },
+        {
+          "tank_gallons": 40000.0,
+          "peak_day_gal": 604659.0,
+          "peak_cut_pct": 23.53,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4650173.0,
+          "est_tank_build_cost_usd": 100000.0,
+          "net_capex_benefit_usd": 4550173.0
+        },
+        {
+          "tank_gallons": 80000.0,
+          "peak_day_gal": 584659.0,
+          "peak_cut_pct": 26.05,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5150173.0,
+          "est_tank_build_cost_usd": 200000.0,
+          "net_capex_benefit_usd": 4950173.0
+        },
+        {
+          "tank_gallons": 120000.0,
+          "peak_day_gal": 564659.0,
+          "peak_cut_pct": 28.58,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5650173.0,
+          "est_tank_build_cost_usd": 300000.0,
+          "net_capex_benefit_usd": 5350173.0
+        },
+        {
+          "tank_gallons": 160000.0,
+          "peak_day_gal": 544659.0,
+          "peak_cut_pct": 31.11,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 6150173.0,
+          "est_tank_build_cost_usd": 400000.0,
+          "net_capex_benefit_usd": 5750173.0
+        }
+      ],
+      "data_source": "precomputed",
+      "note": "Precomputed 6-point CBC tank sweep for Lahore (2026-06-08 to 2026-06-14). Swaps off, cap unconstrained, flexible share 0.20, physical plant, 100 MW, CoC 4, $85/MWh. Tank build cost is the model constant $2.50/gal. Avoided capex uses Han et al. 2026, $10M\u2013$40M per MGD."
+    },
+    "karachi": {
+      "site_id": "karachi",
+      "site_name": "Karachi",
+      "recommended_tank_gal": 80000.0,
+      "tank_cost_per_gal_usd": 2.5,
+      "points": [
+        {
+          "tank_gallons": 0.0,
+          "peak_day_gal": 754930.0,
+          "peak_cut_pct": 20.02,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 4725460.0,
+          "est_tank_build_cost_usd": 0.0,
+          "net_capex_benefit_usd": 4725460.0
+        },
+        {
+          "tank_gallons": 20000.0,
+          "peak_day_gal": 734930.0,
+          "peak_cut_pct": 22.14,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5225460.0,
+          "est_tank_build_cost_usd": 50000.0,
+          "net_capex_benefit_usd": 5175460.0
+        },
+        {
+          "tank_gallons": 40000.0,
+          "peak_day_gal": 714930.0,
+          "peak_cut_pct": 24.26,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5725460.0,
+          "est_tank_build_cost_usd": 100000.0,
+          "net_capex_benefit_usd": 5625460.0
+        },
+        {
+          "tank_gallons": 80000.0,
+          "peak_day_gal": 704140.0,
+          "peak_cut_pct": 25.4,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5995206.0,
+          "est_tank_build_cost_usd": 200000.0,
+          "net_capex_benefit_usd": 5795206.0
+        },
+        {
+          "tank_gallons": 120000.0,
+          "peak_day_gal": 704140.0,
+          "peak_cut_pct": 25.4,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5995206.0,
+          "est_tank_build_cost_usd": 300000.0,
+          "net_capex_benefit_usd": 5695206.0
+        },
+        {
+          "tank_gallons": 160000.0,
+          "peak_day_gal": 704140.0,
+          "peak_cut_pct": 25.4,
+          "extra_mwh": 0.0,
+          "avoided_capex_mid_usd": 5995206.0,
+          "est_tank_build_cost_usd": 400000.0,
+          "net_capex_benefit_usd": 5595206.0
+        }
+      ],
+      "data_source": "precomputed",
+      "note": "Precomputed 6-point CBC tank sweep for Karachi (2026-05-25 to 2026-05-31). Swaps off, cap unconstrained, flexible share 0.20, physical plant, 100 MW, CoC 4, $85/MWh. Tank build cost is the model constant $2.50/gal. Avoided capex uses Han et al. 2026, $10M\u2013$40M per MGD."
+    }
+  }
+}

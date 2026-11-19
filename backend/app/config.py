@@ -31,6 +31,11 @@ class Settings(BaseSettings):
     default_mean_it_ratio: float = 0.70
     sister_cap_ratio: float = 1.10
     cbc_time_limit_sec: int = 15
+    # Budget for on-demand multi-solve sweeps (tank sizing, fleet). Default UI calls
+    # are served from precomputed JSON and never hit this limit.
+    cbc_sweep_time_limit_sec: int = 4
+    cbc_sweep_gap_rel: float = 0.015
+    cbc_sweep_threads: int = 1
 
     # Business economics defaults (Han et al. 2026: $10M–$40M per MGD peak capacity)
     default_electricity_price_usd_per_mwh: float = 85.0

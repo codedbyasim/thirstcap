@@ -23,13 +23,9 @@ export function apiBaseUrl(): string | null {
   return url.replace(/\/$/, "");
 }
 
-/** Mock is off whenever NEXT_PUBLIC_API_URL is set and NEXT_PUBLIC_USE_MOCK is not "true". */
+/** Sample plans run only when NEXT_PUBLIC_USE_MOCK is explicitly "true". A missing API URL is an error, not a silent toy dataset. */
 export function usingMock(): boolean {
-  const flag = process.env.NEXT_PUBLIC_USE_MOCK;
-  const url = apiBaseUrl();
-  if (flag === "true") return true;
-  if (flag === "false" && url) return false;
-  return !url;
+  return process.env.NEXT_PUBLIC_USE_MOCK === "true";
 }
 
 export const WEATHER_RATE_LIMIT_MESSAGE =

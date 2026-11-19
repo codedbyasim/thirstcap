@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Building2, CheckCircle2, Droplets, FileSpreadsheet } from "lucide-react";
+import { formatNum, formatUsdCompact } from "@/lib/format";
+import { FLEET_UI, fleetSite, peakCutLabel } from "@/lib/precomputed";
 
 const STAKEHOLDERS = [
   {
@@ -12,14 +14,11 @@ const STAKEHOLDERS = [
     icon: Building2,
     headline: "Unlock Stalled Zoning & Aquifer Permits Across High-Growth AI Corridors",
     summary:
-      "Municipalities from Loudoun County and Phoenix to Querétaro and Aragón increasingly block new capacity unless operators guarantee hard peak-day water caps. ThirstCap delivers audit-verified Permit Shield telemetry alongside drop-in Slurm and Kubernetes dispatch schedules.",
-    metricLabel: "Permit Shield Readiness",
-    metricValue: "94 / 100",
-    metricSub: "Guaranteed daily cap compliance + 0 MW grid-peak overlap",
+      "The simulator shows what a firm daily cap does to a 100 MW load on real weather. The dispatch tab prints scheduler hints. It does not connect to Slurm or Kubernetes.",
     bullets: [
-      "Pre-validated daily peak caps accepted in municipal water-hookup applications",
-      "Direct Slurm / Kubernetes batch deferral & cross-basin checkpoint failover hooks",
-      "Reclaimed & TSE greywater blend scheduler cuts potable draw by up to -58%",
+      "Daily cap, shortfall, and permit-shield score come from the CBC plan response",
+      "Dispatch windows are text hints for a batch scheduler, not live job control",
+      "Reclaimed share is an input. The plan reports the potable and reclaimed split",
     ],
     ctaHref: "/dashboard?site=phoenix",
     ctaLabel: "Inspect Operator Control Plane",
@@ -31,13 +30,10 @@ const STAKEHOLDERS = [
     headline: "Defer $10M–$40M/MGD in Peak Plant & Pipe Expansion With Enforceable Water-DR",
     summary:
       "Water utilities size treatment plants, boosters, and trunk mains for the hottest seven afternoons of the year. By automating a 4-stage curtailment SLA with large AI campuses, utilities protect residential taps during heatwaves without stalling industrial tax revenue.",
-    metricLabel: "Combined 10-Basin 2026 Potential",
-    metricValue: "3.00 MGD Saved",
-    metricSub: "Protects 9,986 households/day across 10 calibrated 100 MW campuses",
     bullets: [
-      "OpenADR-inspired ThirstCap-WaterDR-v1 JSON signal across Stages 0 through 3 (-45%)",
-      "Zero silent gaming: sister-site guardrail prevents hiding water inside adjacent basins",
-      "One-click cryptographic-style compliance log verifying daily firm meter ceilings",
+      "The protocol tab copies the JSON curtailment payload the solver emits. It is not a certified OpenADR adapter",
+      "The model caps sister-site daily water at 110% of that site's baseline peak",
+      "Each fleet row reports whether the firm cap was met",
     ],
     ctaHref: "/dashboard?tab=protocol",
     ctaLabel: "Inspect Utility Water-DR Protocol",
@@ -49,13 +45,10 @@ const STAKEHOLDERS = [
     headline: "Quantify 5-Year Water Tariff NPV & Automate EU EED (2024/1364) Audits",
     summary:
       "European data centers ≥500 kW face statutory annual WUE and sustainability A–G disclosures, while desert hubs face steep scarcity surcharges. ThirstCap models exact tank CAPEX payback, regional water tariff savings, and ISO/IEC 30134-9 metrics in one boardroom report.",
-    metricLabel: "100 MW Phoenix 2026 5-Yr Net ROI",
-    metricValue: "$4.32M NPV",
-    metricSub: "40k gal thermal buffer tank pays back in < 1 year on local tariffs",
     bullets: [
-      "Automated EU EED A–G potable WUE rating engine traceable to hourly telemetry",
-      "6-point storage tank sizing sweep balancing CAPEX build cost vs avoided surcharges",
-      "Boardroom Print Report + 168-hour CSV audit trail exportable in one click",
+      "EU EED A–G on the plan is a potable WUE band computed from the solve, not a filed disclosure",
+      "The tank tab sweeps six storage sizes with CBC and a $2.50/gal build-cost constant",
+      "The dashboard can export the 168-hour CSV from the plan that was just solved",
     ],
     ctaHref: "/dashboard?tab=compliance",
     ctaLabel: "Open ESG & CFO ROI Audit",
@@ -67,6 +60,26 @@ export function StakeholderTabs() {
   const [activeIdx, setActiveIdx] = useState(0);
   const current = STAKEHOLDERS[activeIdx];
   const ActiveIcon = current.icon;
+  const phoenix = fleetSite("phoenix");
+  const shields = FLEET_UI.sites.map((site) => site.permit_shield_score ?? 0);
+  const metric =
+    current.id === "operators"
+      ? {
+          label: "Permit shield in the default 2026 fleet",
+          value: shields.every((score) => score === shields[0]) ? `${shields[0]} / 100` : peakCutLabel(),
+          sub: `Peak-day cut ${peakCutLabel()} with the stage-2 default controls. Not a permit that has been filed.`,
+        }
+      : current.id === "utilities"
+        ? {
+            label: "Combined 10-basin peak avoided",
+            value: `${formatNum(FLEET_UI.total_mgd_avoided, 3)} MGD`,
+            sub: `${FLEET_UI.total_households_protected.toLocaleString("en-US")} households/day summed across the ten 100 MW solves.`,
+          }
+        : {
+            label: `Phoenix 5-year net ROI · ${phoenix?.window ?? "2026 peak"}`,
+            value: phoenix ? formatUsdCompact(phoenix.five_year_net_roi_usd ?? 0) : "—",
+            sub: "From the precomputed fleet row. Tank payback is not shown unless the tank sweep returns it.",
+          };
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
@@ -159,13 +172,13 @@ export function StakeholderTabs() {
         <div className="flex flex-col justify-between rounded-2xl border border-slate-800 bg-[#04111D] p-6 text-white lg:col-span-5">
           <div>
             <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-sky-400">
-              Verified Benchmark Outcome
+              Precomputed fleet figure
             </p>
-            <p className="mt-2 font-mono text-xs text-slate-400">{current.metricLabel}</p>
+            <p className="mt-2 font-mono text-xs text-slate-400">{metric.label}</p>
             <p className="num mt-2 font-display text-4xl font-bold tracking-tight text-emerald-400 sm:text-5xl">
-              {current.metricValue}
+              {metric.value}
             </p>
-            <p className="mt-2 text-sm text-slate-300">{current.metricSub}</p>
+            <p className="mt-2 text-sm text-slate-300">{metric.sub}</p>
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-3 border-t border-slate-800 pt-4 font-mono text-xs">

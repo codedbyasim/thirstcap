@@ -12,10 +12,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { CheckCircle2, Database } from "lucide-react";
+import { CheckCircle2, Database, RefreshCw } from "lucide-react";
 import { tooltipStyle } from "@/components/charts/tooltip";
 import { optimizerErrorText, runTankSizing } from "@/lib/api";
 import { formatGal, formatUsd, formatUsdCompact } from "@/lib/format";
+import { defaultTank } from "@/lib/precomputed";
 import type { PlanRequest, TankSizingResponse } from "@/lib/types";
 
 export function TankSizingTab({
@@ -30,6 +31,8 @@ export function TankSizingTab({
   const [data, setData] = useState<TankSizingResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [elapsed, setElapsed] = useState(0);
+  const [retry, setRetry] = useState(0);
 
   const reqKey = JSON.stringify({
     site_id: request.site_id,
@@ -46,44 +49,62 @@ export function TankSizingTab({
 
   useEffect(() => {
     let cancel = false;
+    const snapshot = defaultTank(request);
+    setData(snapshot);
     setLoading(true);
     setError(null);
+    setElapsed(0);
+    const started = Date.now();
+    const timer = window.setInterval(() => setElapsed(Math.floor((Date.now() - started) / 1000)), 500);
     runTankSizing(request)
       .then((res) => {
         if (!cancel) setData(res);
       })
       .catch((err: unknown) => {
-        if (!cancel) setError(optimizerErrorText(err, "Tank sizing sweep failed."));
+        if (!cancel) {
+          setError(optimizerErrorText(err, "Tank sizing sweep failed."));
+          if (!snapshot) setData(null);
+        }
       })
       .finally(() => {
         if (!cancel) setLoading(false);
+        window.clearInterval(timer);
       });
     return () => {
       cancel = true;
+      window.clearInterval(timer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reqKey]);
+  }, [reqKey, retry]);
 
   if (loading && !data) {
     return (
       <div className="rounded-lg border border-line bg-surface p-6">
         <div className="h-64 animate-pulse rounded-md bg-subtle" />
         <p className="mt-3 text-center text-xs text-marine-muted">
-          Running 6-point CBC MILP storage capacity sweep (0 to 160,000 gal)…
+          Running 6-point CBC MILP storage capacity sweep (0 to 160,000 gal)… {elapsed}s elapsed
         </p>
       </div>
     );
   }
 
-  if (error) {
+  if (error && !data) {
     return (
-      <div className="rounded-lg border border-flex/40 bg-flex-tint/40 p-4 text-xs text-flex">
-        {error}
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-flex/40 bg-flex-tint/40 p-4 text-xs text-flex">
+        <p>{error}</p>
+        <button
+          type="button"
+          onClick={() => setRetry((n) => n + 1)}
+          className="inline-flex items-center gap-1 rounded-md bg-flex px-2.5 py-1 font-semibold text-white"
+        >
+          <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+          Retry
+        </button>
       </div>
     );
   }
 
-  if (!data) return null;
+  if (!data || data.points.length === 0) return null;
 
   const chartData = data.points.map((p) => ({
     label: p.tank_gallons === 0 ? "0 gal" : `${Math.round(p.tank_gallons / 1000)}k gal`,
@@ -96,6 +117,27 @@ export function TankSizingTab({
 
   return (
     <div className="space-y-4">
+      {loading ? (
+        <p className="text-center text-[11px] text-marine-muted">Refreshing the tank sweep… {elapsed}s</p>
+      ) : null}
+      {error ? (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-flex/40 bg-flex-tint/40 p-3 text-xs text-flex">
+          <p>{error}</p>
+          <button
+            type="button"
+            onClick={() => setRetry((n) => n + 1)}
+            className="inline-flex items-center gap-1 rounded-md bg-flex px-2.5 py-1 font-semibold text-white"
+          >
+            <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+            Retry
+          </button>
+        </div>
+      ) : null}
+      {data.note ? (
+        <p className="rounded-lg border border-line bg-subtle px-3 py-2 text-[11px] leading-relaxed text-marine-muted">
+          {data.note}
+        </p>
+      ) : null}
       {/* Optimal Tank Callout */}
       <section className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-hydro/30 bg-hydro-tint/40 p-4">
         <div className="flex items-start gap-3">

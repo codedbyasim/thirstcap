@@ -200,7 +200,7 @@ export const SITES: Site[] = [
     climate: "Ebro basin summer heatwaves hitting 40°C+; cool Atlantic air nearby in Bilbao.",
     why: "Europe's fastest-growing AI hub facing regional anti-extraction pushback and mandatory annual EU EED water disclosures.",
     sisterName: "Bilbao Atlantic sister",
-    sisterNote: "11°C Atlantic spread allows high-efficiency compute shift + instant ISO 30134-9 EU EED Grade A documentation.",
+    sisterNote: "Bilbao is the cooler Atlantic sister used by the model. The EU EED letter is computed from the solve, not a filed certificate.",
     mapCoords: projectGeo(41.6488, -0.8891),
     sisterMapCoords: projectGeo(43.263, -2.935),
     toyEvapDays: 165,

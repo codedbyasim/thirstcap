@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     template: "%s | ThirstCap",
   },
   description:
-    "72-hour rolling CBC MILP platform that caps data center peak-day water withdrawal, unlocks municipal permits, enforces EU EED Grade A–G ratings, and protects scarce water basins.",
+    "72-hour rolling CBC MILP simulator for data-center peak-day water. Weather, grid, and workload inputs are cited datasets. EU EED A–G is a computed band, not a filed rating.",
   applicationName: "ThirstCap",
 };
 

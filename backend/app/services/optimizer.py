@@ -82,6 +82,8 @@ def _solve_rolling_window(
     lambda3: float,
     time_limit_sec: int,
     allow_cap_slack: bool,
+    gap_rel: float | None = None,
+    cbc_threads: int | None = None,
 ) -> dict:
     """Solve one rolling horizon [w0, w1) with PuLP CBC."""
     hours = list(range(w0, w1))
@@ -226,7 +228,12 @@ def _solve_rolling_window(
 
     prob += obj
 
-    solver = pulp.PULP_CBC_CMD(timeLimit=time_limit_sec, msg=False)
+    solver_kwargs: dict = {"timeLimit": time_limit_sec, "msg": False}
+    if gap_rel is not None:
+        solver_kwargs["gapRel"] = gap_rel
+    if cbc_threads is not None:
+        solver_kwargs["threads"] = cbc_threads
+    solver = pulp.PULP_CBC_CMD(**solver_kwargs)
     status_code = prob.solve(solver)
     status_str = pulp.LpStatus.get(status_code, "Unknown")
 
@@ -277,9 +284,13 @@ def solve_plan(
     lambda1: float | None = None,
     lambda2: float | None = None,
     lambda3: float | None = None,
+    time_limit_sec: int | None = None,
+    gap_rel: float | None = None,
+    cbc_threads: int | None = None,
 ) -> SolvedPlan:
     t0 = time.perf_counter()
     settings = get_settings()
+    cbc_limit = settings.cbc_time_limit_sec if time_limit_sec is None else int(time_limit_sec)
     l1 = settings.lambda1 if lambda1 is None else lambda1
     l2 = settings.lambda2 if lambda2 is None else lambda2
     l3 = settings.lambda3 if lambda3 is None else lambda3
@@ -411,8 +422,10 @@ def solve_plan(
             lambda1=l1,
             lambda2=l2,
             lambda3=l3,
-            time_limit_sec=settings.cbc_time_limit_sec,
+            time_limit_sec=cbc_limit,
             allow_cap_slack=False,
+            gap_rel=gap_rel,
+            cbc_threads=cbc_threads,
         )
         if not sol["ok"] and solver_cap is not None:
             sol = _solve_rolling_window(
@@ -438,8 +451,10 @@ def solve_plan(
                 lambda1=l1,
                 lambda2=l2,
                 lambda3=l3,
-                time_limit_sec=settings.cbc_time_limit_sec,
+                time_limit_sec=cbc_limit,
                 allow_cap_slack=True,
+                gap_rel=gap_rel,
+                cbc_threads=cbc_threads,
             )
 
         if not sol["ok"]:

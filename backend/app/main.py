@@ -22,6 +22,11 @@ async def _lifespan(_app: FastAPI):
     """Warm live forecasts in the background. Startup does not wait on Open-Meteo."""
     task: asyncio.Task | None = None
     disabled = os.environ.get("THIRSTCAP_WEATHER_WARMUP", "1").strip().lower() in {"0", "false", "no"}
+    if "pytest" not in sys.modules:
+        from app.services.precomputed import seed_runtime_caches
+
+        # File load only — does not solve. Default fleet/tank requests hit memory immediately.
+        seed_runtime_caches()
     if not disabled and "pytest" not in sys.modules:
         from app.services.weather import warm_live_forecasts
 
