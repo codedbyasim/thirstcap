@@ -12,5 +12,7 @@ services:
         value: 3.12.8
       - key: CORS_ORIGINS
         sync: false
+      - key: OPEN_METEO_API_KEY
+        sync: false
       - key: WEB_CONCURRENCY
         value: "1"

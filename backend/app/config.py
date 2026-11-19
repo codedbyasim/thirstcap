@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     app_name: str = "ThirstCap"
     version: str = "2.0.0"
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+    # Optional Open-Meteo customer API key. Empty uses the public endpoints.
+    open_meteo_api_key: str = ""
 
     # MILP objective penalties (BACKEND.md section 5)
     lambda1: float = 0.15  # Extra dry-cooling electricity weight

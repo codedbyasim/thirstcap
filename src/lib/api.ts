@@ -32,6 +32,29 @@ export function usingMock(): boolean {
   return !url;
 }
 
+export const WEATHER_RATE_LIMIT_MESSAGE =
+  "Weather provider is rate-limiting; please retry in a minute.";
+
+export function isWeatherRateLimited(err: unknown): boolean {
+  if (err instanceof ApiError) {
+    return (
+      err.code === "weather_rate_limited" ||
+      err.status === 429 ||
+      (err.status === 503 && /rate-limit/i.test(err.message)) ||
+      /\b429\b/.test(err.message)
+    );
+  }
+  if (err instanceof Error) {
+    return /\b429\b/.test(err.message) || /rate-limit/i.test(err.message);
+  }
+  return false;
+}
+
+export function optimizerErrorText(err: unknown, fallback: string): string {
+  if (isWeatherRateLimited(err)) return WEATHER_RATE_LIMIT_MESSAGE;
+  return err instanceof Error ? err.message : fallback;
+}
+
 export async function getHealth(): Promise<HealthResponse> {
   if (usingMock()) {
     return { status: "ok", service: "thirstcap", version: "sample", sample: true };

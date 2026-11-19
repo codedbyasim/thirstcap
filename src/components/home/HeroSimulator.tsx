@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Calendar, Droplets, Flame, Globe, Loader2, Radio, Search, ShieldCheck, Wind, Zap } from "lucide-react";
+import { ArrowRight, Calendar, Droplets, Flame, Globe, Loader2, Radio, RefreshCw, Search, ShieldCheck, Wind, Zap } from "lucide-react";
 import { BENCHMARKS } from "@/data/benchmarks";
-import { geocodeCity, runPlan } from "@/lib/api";
+import { geocodeCity, optimizerErrorText, runPlan } from "@/lib/api";
 import { formatCompact, formatNum, formatUsdCompact } from "@/lib/format";
 import { siteById, summerPeak2026Window, type SiteId } from "@/lib/sites";
 import type { CustomSiteInput, GeocodeResult, PlanRequest, PlanResponse } from "@/lib/types";
@@ -106,7 +106,7 @@ export function HeroSimulator() {
       const res = await runPlan(req);
       setLivePlan(res);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Live solve unavailable.");
+      setError(optimizerErrorText(err, "Live solve unavailable."));
     } finally {
       setLoading(false);
     }
@@ -474,7 +474,17 @@ export function HeroSimulator() {
       </div>
 
       {error && (
-        <p className="mt-2 rounded bg-rose-950/60 px-2.5 py-1 text-[11px] text-rose-200">{error}</p>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded bg-rose-950/60 px-2.5 py-1.5 text-[11px] text-rose-200">
+          <p>{error}</p>
+          <button
+            type="button"
+            onClick={() => void solveHero()}
+            className="inline-flex shrink-0 items-center gap-1 rounded bg-rose-800 px-2 py-0.5 font-semibold text-white hover:bg-rose-700"
+          >
+            <RefreshCw className="h-3 w-3" aria-hidden="true" />
+            Retry
+          </button>
+        </div>
       )}
 
       <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2 text-xs">
