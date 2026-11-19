@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, CalendarCheck2, Check, FileCheck2, Layers, ShieldCheck, TrendingUp } from "lucide-react";
+import { ArrowRight, Check, FileCheck2, Layers, ShieldCheck, TrendingUp } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { PilotModal } from "@/components/PilotModal";
 import { ArchitectureDiagram } from "@/components/home/ArchitectureDiagram";
 import { GlobalBasinMap } from "@/components/home/GlobalBasinMap";
 import { HeroSimulator } from "@/components/home/HeroSimulator";
 import { StakeholderTabs } from "@/components/home/StakeholderTabs";
+import { formatNum, formatUsdCompact } from "@/lib/format";
+import { FLEET_UI, REPO_URL, fleetSite, peakCutLabel } from "@/lib/precomputed";
 
 const STANDARDS_BAR = [
   { label: "Optimization Solver", value: "PuLP CBC 72h Rolling MILP" },
@@ -19,57 +19,66 @@ const STANDARDS_BAR = [
   { label: "Regulatory Standard", value: "EU EED (2024/1364) & ISO 30134-9" },
 ];
 
-const TIERS = [
+const PATHS = [
   {
-    name: "Single-Campus Pilot",
-    tag: "90-Day Shadow Mode",
-    price: "$2,500",
-    unit: "/mo · 1 basin",
-    desc: "Rapid validation for a high-stress campus facing zoning scrutiny or peak municipal tariffs.",
-    featured: false,
+    name: "Control plane",
+    tag: "Live solver",
+    title: "Run a basin",
+    desc: "Open the dashboard and solve one registry site or any geocoded city. Results come back from the FastAPI CBC service.",
+    href: "/dashboard",
+    cta: "Open the control plane",
+    external: false,
     points: [
-      "Live 72h weather, wet-bulb & grid feed integration",
-      "6-point Thermal Tank Sizing ROI & payback analysis",
-      "Permit Shield Baseline Report for municipal submission",
-      "Read-only BMS / Slurm / Kubernetes shadow schedules",
+      "Live 7-day forecast or the site's 2026 peak window",
+      "Tank sweep and 10-city fleet for the default controls are precomputed",
+      "Other control sets solve with a 4 second CBC budget per window",
     ],
-    cta: "Start 14-Day Shadow Pilot",
   },
   {
-    name: "Multi-Basin Global Fleet",
-    tag: "Most Popular · Hyperscale",
-    price: "Custom Fleet",
-    unit: "Unlimited basins & regions",
-    desc: "Full cross-basin compute routing, automated drought response, and statutory ESG compliance.",
-    featured: true,
+    name: "Fleet ledger",
+    tag: "Precomputed CBC",
+    title: "Compare 10 corridors",
+    desc: "The 10-city tab renders the committed 2026 summer fleet. Live mode on the free tier is labelled when it reuses that run.",
+    href: "/dashboard?tab=fleet",
+    cta: "Open the fleet tab",
+    external: false,
     points: [
-      "All 10 calibrated stress corridors + custom lat/lon sites",
-      "Automated cross-region failover respecting 110% sister guardrails",
-      "EU EED (2024/1364) A–G & ISO 30134-9 audit trail export",
-      "Reclaimed / TSE cooling mix + active Slurm & K8s webhooks",
+      "One row per registry site, with the window that was actually solved",
+      "Capex uses Han et al. 2026 ($10M–$40M per MGD)",
+      "WRI scores are the registry values, not a live Aqueduct query",
     ],
-    cta: "Book Global Fleet Demo",
   },
   {
-    name: "Municipal Utility Partner",
-    tag: "Water-DR Aggregation",
-    price: "Utility SLA",
-    unit: "Multi-operator basin ledger",
-    desc: "Built for municipal water works avoiding $10M–$40M/MGD peak plant expansions.",
-    featured: false,
+    name: "Source",
+    tag: "GitHub",
+    title: "Read the model",
+    desc: "This is a student research simulator. There is no pilot checkout, price, or booking form.",
+    href: REPO_URL,
+    cta: "View the repository",
+    external: true,
     points: [
-      "ThirstCap-WaterDR-v1 OpenADR 4-stage curtailment console",
-      "Campus-by-campus firm daily MGD compliance verification",
-      "Regional drought alert broadcasting (-15%, -30%, -45%)",
-      "Residential household capacity protection telemetry",
+      "PuLP CBC rolling-horizon MILP in backend/app/services/optimizer.py",
+      "Open-Meteo fixtures, EIA-930 profiles, and the Alibaba GPU trace under backend/data",
+      "Precompute script: backend/scripts/precompute_sweeps.py",
     ],
-    cta: "Connect Utility Engineering",
   },
 ];
 
 export function HomePage() {
   const reduced = useReducedMotion();
-  const [pilotOpen, setPilotOpen] = useState(false);
+  const dubai = fleetSite("dubai");
+  const phoenix = fleetSite("phoenix");
+  const grades = FLEET_UI.sites.reduce<Record<string, number>>((acc, site) => {
+    const grade = site.eu_eed_rating ?? "?";
+    acc[grade] = (acc[grade] ?? 0) + 1;
+    return acc;
+  }, {});
+  const shieldScores = FLEET_UI.sites.map((site) => site.permit_shield_score ?? 0);
+  const shieldLabel =
+    shieldScores.length > 0 && shieldScores.every((score) => score === shieldScores[0])
+      ? `${shieldScores[0]}/100 on all ${FLEET_UI.sites.length}`
+      : `${Math.min(...shieldScores)}–${Math.max(...shieldScores)}/100`;
+  const allCapsHeld = FLEET_UI.sites.every((site) => site.cap_met);
 
   return (
     <div className="bg-canvas text-marine-ink">
@@ -104,34 +113,41 @@ export function HomePage() {
                 Launch Live Control Plane
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
-              <button
-                type="button"
-                onClick={() => setPilotOpen(true)}
+              <a
+                href={REPO_URL}
                 className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-[#0A1E33] px-5 py-3 text-sm font-semibold text-white transition-colors hover:border-sky-400/60"
               >
-                <CalendarCheck2 className="h-4 w-4 text-sky-400" aria-hidden="true" />
-                Configure 14-Day Pilot
-              </button>
+                View source &amp; data
+              </a>
             </div>
 
             <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-slate-800/90 pt-6 sm:grid-cols-4">
               <div>
-                <dt className="text-[11px] text-slate-400">Peak-Day Shaved</dt>
-                <dd className="num mt-0.5 font-display text-2xl font-bold text-emerald-400">22%–45.4%</dd>
+                <dt className="text-[11px] text-slate-400">Peak-day cut</dt>
+                <dd className="num mt-0.5 font-display text-2xl font-bold text-emerald-400">{peakCutLabel()}</dd>
               </div>
               <div>
-                <dt className="text-[11px] text-slate-400">10-Basin Potential</dt>
-                <dd className="num mt-0.5 font-display text-2xl font-bold text-white">3.00 MGD</dd>
+                <dt className="text-[11px] text-slate-400">10-basin peak avoided</dt>
+                <dd className="num mt-0.5 font-display text-2xl font-bold text-white">
+                  {formatNum(FLEET_UI.total_mgd_avoided, 3)} MGD
+                </dd>
               </div>
               <div>
-                <dt className="text-[11px] text-slate-400">Grid-Peak Penalty</dt>
-                <dd className="num mt-0.5 font-display text-2xl font-bold text-sky-300">0.0 MW</dd>
+                <dt className="text-[11px] text-slate-400">Extra dry-cooling energy</dt>
+                <dd className="num mt-0.5 font-display text-2xl font-bold text-sky-300">
+                  {formatNum(FLEET_UI.total_extra_mwh, 1)} MWh
+                </dd>
               </div>
               <div>
-                <dt className="text-[11px] text-slate-400">Global Corridors</dt>
-                <dd className="num mt-0.5 font-display text-2xl font-bold text-white">10 Basins</dd>
+                <dt className="text-[11px] text-slate-400">Homes protected</dt>
+                <dd className="num mt-0.5 font-display text-2xl font-bold text-white">
+                  {FLEET_UI.total_households_protected.toLocaleString("en-US")}
+                </dd>
               </div>
             </dl>
+            <p className="mt-3 max-w-xl text-[11px] leading-relaxed text-slate-400">
+              {FLEET_UI.note}
+            </p>
           </motion.div>
 
           <motion.div
@@ -190,35 +206,50 @@ export function HomePage() {
                     CFO 5-Year Financial Model
                   </p>
                   <h3 className="mt-1 font-display text-xl font-bold text-white">
-                    100 MW Dubai vs. Phoenix Reference Campus
+                    100 MW Dubai and Phoenix, same default solve
                   </h3>
                 </div>
                 <span className="num rounded-lg bg-sky-500/15 px-3 py-1 font-mono text-xs font-bold text-sky-300">
-                  +$6.94M / +$4.32M NPV
+                  {dubai ? formatUsdCompact(dubai.five_year_net_roi_usd ?? 0) : "—"} /{" "}
+                  {phoenix ? formatUsdCompact(phoenix.five_year_net_roi_usd ?? 0) : "—"}
                 </span>
               </div>
 
               <dl className="mt-5 space-y-3 text-sm">
-                <div className="flex items-center justify-between border-b border-slate-800/70 pb-2.5">
-                  <dt className="text-slate-300">Avoided Municipal Supply CAPEX (Han et al. 2026)</dt>
-                  <dd className="num font-semibold text-white">$3.50M – $16.98M</dd>
+                <div className="flex items-center justify-between gap-3 border-b border-slate-800/70 pb-2.5">
+                  <dt className="text-slate-300">Dubai avoided supply CAPEX (Han et al. 2026)</dt>
+                  <dd className="num font-semibold text-white">
+                    {dubai
+                      ? `${formatUsdCompact(dubai.avoided_capex_low_usd)}–${formatUsdCompact(dubai.avoided_capex_high_usd)}`
+                      : "—"}
+                  </dd>
                 </div>
-                <div className="flex items-center justify-between border-b border-slate-800/70 pb-2.5">
-                  <dt className="text-slate-300">Annual Regional Tariff &amp; Surcharge Savings</dt>
-                  <dd className="num font-semibold text-emerald-400">$215K – $595K / yr</dd>
+                <div className="flex items-center justify-between gap-3 border-b border-slate-800/70 pb-2.5">
+                  <dt className="text-slate-300">Phoenix avoided supply CAPEX</dt>
+                  <dd className="num font-semibold text-white">
+                    {phoenix
+                      ? `${formatUsdCompact(phoenix.avoided_capex_low_usd)}–${formatUsdCompact(phoenix.avoided_capex_high_usd)}`
+                      : "—"}
+                  </dd>
                 </div>
-                <div className="flex items-center justify-between border-b border-slate-800/70 pb-2.5">
-                  <dt className="text-slate-300">40,000 gal Thermal Tank Build Cost ($2.50/gal)</dt>
-                  <dd className="num font-semibold text-slate-200">$100,000 (0.15 yr payback)</dd>
+                <div className="flex items-center justify-between gap-3 border-b border-slate-800/70 pb-2.5">
+                  <dt className="text-slate-300">5-year net ROI, Dubai / Phoenix</dt>
+                  <dd className="num font-semibold text-emerald-400">
+                    {dubai ? formatUsdCompact(dubai.five_year_net_roi_usd ?? 0) : "—"} /{" "}
+                    {phoenix ? formatUsdCompact(phoenix.five_year_net_roi_usd ?? 0) : "—"}
+                  </dd>
                 </div>
-                <div className="flex items-center justify-between border-b border-slate-800/70 pb-2.5">
-                  <dt className="text-slate-300">Grid-Peak Dry-Cooling Penalty Added</dt>
-                  <dd className="num font-semibold text-emerald-400">$0 / peak hour (0.0 MW)</dd>
+                <div className="flex items-center justify-between gap-3 border-b border-slate-800/70 pb-2.5">
+                  <dt className="text-slate-300">Extra dry-cooling energy, Dubai / Phoenix</dt>
+                  <dd className="num font-semibold text-slate-200">
+                    {dubai ? `${formatNum(dubai.extra_mwh, 1)} MWh` : "—"} /{" "}
+                    {phoenix ? `${formatNum(phoenix.extra_mwh, 1)} MWh` : "—"}
+                  </dd>
                 </div>
               </dl>
 
               <p className="mt-4 text-xs leading-relaxed text-slate-400">
-                Every tariff rate ($3.60–$11.50/kgal) and electricity rate ($85/MWh default) is customizable live inside the Control Plane to match site-specific municipal utility contracts.
+                Windows {dubai?.window ?? "—"} (Dubai) and {phoenix?.window ?? "—"} (Phoenix). The model prices tank steel at $2.50 per gallon. Electricity in this solve is the $85/MWh default. These are scenario inputs, not utility invoices.
               </p>
             </div>
 
@@ -239,41 +270,54 @@ export function HomePage() {
               {/* Visual EU EED Grade Scale */}
               <div className="mt-5">
                 <div className="flex items-center justify-between text-xs text-slate-300">
-                  <span>Des Moines / Querétaro Potable WUE (Stage 2 + 35% TSE)</span>
-                  <span className="num font-bold text-emerald-400">Grade A Qualified</span>
+                  <span>EU EED grades in this fleet solve</span>
+                  <span className="num font-bold text-emerald-400">
+                    {Object.entries(grades)
+                      .sort(([a], [b]) => a.localeCompare(b))
+                      .map(([grade, count]) => `${count}× ${grade}`)
+                      .join(" · ")}
+                  </span>
                 </div>
                 <div className="mt-2 grid grid-cols-7 gap-1.5 text-center font-mono text-xs font-bold">
-                  {[
-                    { g: "A", active: true, cls: "bg-emerald-500 text-[#04111D] ring-2 ring-emerald-300" },
-                    { g: "B", active: false, cls: "bg-emerald-950/60 text-emerald-300 border border-emerald-800" },
-                    { g: "C", active: false, cls: "bg-sky-950/60 text-sky-300 border border-sky-900" },
-                    { g: "D", active: false, cls: "bg-amber-950/60 text-amber-300 border border-amber-900" },
-                    { g: "E", active: false, cls: "bg-orange-950/60 text-orange-300 border border-orange-900" },
-                    { g: "F", active: false, cls: "bg-rose-950/60 text-rose-300 border border-rose-900" },
-                    { g: "G", active: false, cls: "bg-rose-950 text-rose-400 border border-rose-900" },
-                  ].map((item) => (
-                    <div key={item.g} className={`rounded-lg py-2 ${item.cls}`}>
-                      {item.g}
-                    </div>
-                  ))}
+                  {["A", "B", "C", "D", "E", "F", "G"].map((grade) => {
+                    const count = grades[grade] ?? 0;
+                    const active = count > 0;
+                    return (
+                      <div
+                        key={grade}
+                        className={`rounded-lg py-2 ${
+                          active
+                            ? "bg-emerald-500 text-[#04111D]"
+                            : "border border-slate-800 bg-[#04111D] text-slate-500"
+                        }`}
+                      >
+                        {grade}
+                        <span className="mt-0.5 block text-[10px] font-semibold">{count}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
               <div className="mt-5 grid grid-cols-3 gap-3 text-center sm:text-left">
                 <div className="rounded-xl border border-slate-800 bg-[#04111D] p-3">
                   <p className="text-[11px] text-slate-400">Permit Shield</p>
-                  <p className="num mt-1 font-display text-xl font-bold text-emerald-400">94 / 100</p>
-                  <p className="text-[10.5px] text-slate-400">Permit Ready</p>
+                  <p className="num mt-1 font-display text-xl font-bold text-emerald-400">{shieldLabel}</p>
+                  <p className="text-[10.5px] text-slate-400">From the fleet rows</p>
                 </div>
                 <div className="rounded-xl border border-slate-800 bg-[#04111D] p-3">
-                  <p className="text-[11px] text-slate-400">Potable Water Cut</p>
-                  <p className="num mt-1 font-display text-xl font-bold text-sky-300">-64.5%</p>
-                  <p className="text-[10.5px] text-slate-400">35% TSE Reclaimed</p>
+                  <p className="text-[11px] text-slate-400">Peak-day cut</p>
+                  <p className="num mt-1 font-display text-xl font-bold text-sky-300">{peakCutLabel()}</p>
+                  <p className="text-[10.5px] text-slate-400">
+                    {allCapsHeld ? "Cap held on every site" : "See fleet rows for cap status"}
+                  </p>
                 </div>
                 <div className="rounded-xl border border-slate-800 bg-[#04111D] p-3">
-                  <p className="text-[11px] text-slate-400">Daily Homes Spared</p>
-                  <p className="num mt-1 font-display text-xl font-bold text-white">9,986</p>
-                  <p className="text-[10.5px] text-slate-400">Across 10 basins</p>
+                  <p className="text-[11px] text-slate-400">Daily homes spared</p>
+                  <p className="num mt-1 font-display text-xl font-bold text-white">
+                    {FLEET_UI.total_households_protected.toLocaleString("en-US")}
+                  </p>
+                  <p className="text-[10.5px] text-slate-400">Sum of 10 campuses</p>
                 </div>
               </div>
             </div>
@@ -289,34 +333,22 @@ export function HomePage() {
             Commercial Deployment Paths
           </p>
           <h2 className="heading-balance mt-2 font-display text-3xl font-bold tracking-tight text-marine-ink sm:text-4xl">
-            From 14-Day Shadow Audit to Automated Utility Dispatch
+            What you can actually run
           </h2>
         </div>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
-          {TIERS.map((tier) => (
+          {PATHS.map((tier) => (
             <div
               key={tier.name}
-              className={`flex flex-col justify-between rounded-2xl border p-6 sm:p-7 ${
-                tier.featured
-                  ? "border-2 border-hydro bg-surface shadow-xl ring-4 ring-sky-500/10"
-                  : "border-line bg-surface shadow-sm"
-              }`}
+              className="flex flex-col justify-between rounded-2xl border border-line bg-surface p-6 shadow-sm sm:p-7"
             >
               <div>
                 <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-display text-xl font-bold text-marine-ink">{tier.name}</h3>
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 font-mono text-[10.5px] font-semibold ${
-                      tier.featured ? "bg-sky-100 text-hydro-dark" : "bg-subtle text-marine-muted"
-                    }`}
-                  >
+                  <h3 className="font-display text-xl font-bold text-marine-ink">{tier.title}</h3>
+                  <span className="rounded-full bg-subtle px-2.5 py-0.5 font-mono text-[10.5px] font-semibold text-marine-muted">
                     {tier.tag}
                   </span>
-                </div>
-                <div className="mt-4 flex items-baseline gap-2">
-                  <span className="num font-display text-3xl font-bold text-marine-ink">{tier.price}</span>
-                  <span className="text-xs text-marine-muted">{tier.unit}</span>
                 </div>
                 <p className="mt-2.5 text-sm leading-relaxed text-marine-muted">{tier.desc}</p>
 
@@ -330,17 +362,21 @@ export function HomePage() {
                 </ul>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setPilotOpen(true)}
-                className={`mt-7 w-full rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
-                  tier.featured
-                    ? "bg-hydro text-white hover:bg-hydro-dark"
-                    : "border border-slate-300 bg-canvas text-marine-ink hover:bg-subtle"
-                }`}
-              >
-                {tier.cta}
-              </button>
+              {tier.external ? (
+                <a
+                  href={tier.href}
+                  className="mt-7 inline-flex w-full items-center justify-center rounded-xl border border-slate-300 bg-canvas px-4 py-3 text-sm font-semibold text-marine-ink transition-colors hover:bg-subtle"
+                >
+                  {tier.cta}
+                </a>
+              ) : (
+                <Link
+                  href={tier.href}
+                  className="mt-7 inline-flex w-full items-center justify-center rounded-xl bg-hydro px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-hydro-dark"
+                >
+                  {tier.cta}
+                </Link>
+              )}
             </div>
           ))}
         </div>
@@ -363,13 +399,12 @@ export function HomePage() {
               Open Live Control Plane
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
-            <button
-              type="button"
-              onClick={() => setPilotOpen(true)}
+            <a
+              href={REPO_URL}
               className="rounded-xl border border-slate-600 px-5 py-3 text-sm font-semibold text-white hover:border-sky-400"
             >
-              Generate Pilot Brief
-            </button>
+              Read the source
+            </a>
           </div>
         </div>
       </section>
@@ -428,15 +463,22 @@ export function HomePage() {
                   <Link href="/dashboard?tab=protocol" className="hover:text-sky-300">Water-DR OpenADR Signal</Link>
                 </li>
                 <li>
-                  <button type="button" onClick={() => setPilotOpen(true)} className="hover:text-sky-300">
-                    Request Shadow Pilot Brief
-                  </button>
+                  <a href={REPO_URL} className="hover:text-sky-300">
+                    Source, fixtures, and precompute script
+                  </a>
                 </li>
               </ul>
             </div>
           </div>
 
-          <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-slate-800 pt-6 text-xs text-slate-400">
+          <div id="about-the-data" className="mt-10 rounded-xl border border-slate-800 bg-[#081B2E] p-4 text-xs leading-relaxed text-slate-300">
+            <p className="font-semibold text-white">About the data</p>
+            <p className="mt-1.5">
+              Nothing on this site is facility telemetry. Weather is Open-Meteo (committed archive fixtures for the 2026 peak windows, or a live forecast when a control-plane request asks for one). US grid shape is EIA-930 for MISO, AZPS, and PJM; other regions use a diurnal thermal profile. The workload mix is the public Alibaba 2020 GPU cluster trace, 759,033 jobs parsed into fixed, deferrable, and pausable classes. Avoided supply capex uses Han, Li, Wierman, and Ren, “Small Bottle, Big Pipe” (2026), $10–$40 million per MGD. WRI scores and tariffs on the ten corridors are the values stored in the site registry. A searched city gets a regional estimate from the API, and the plan labels that estimate.
+            </p>
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-slate-800 pt-6 text-xs text-slate-400">
             <p>
               Built by Team ThirstCap (NUTECH Islamabad) · Xylem Global Student Innovation Challenge 2026 — Problem Statement #1: Water Quantity
             </p>
@@ -445,7 +487,6 @@ export function HomePage() {
         </div>
       </footer>
 
-      <PilotModal open={pilotOpen} onClose={() => setPilotOpen(false)} />
     </div>
   );
 }

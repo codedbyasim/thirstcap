@@ -240,6 +240,8 @@ class TankSizingResponse(BaseModel):
     recommended_tank_gal: float
     tank_cost_per_gal_usd: float = 2.5
     points: list[TankSizingPoint]
+    data_source: str = "computed"
+    note: str = ""
 
 
 class FleetSiteSummary(BaseModel):
@@ -275,6 +277,8 @@ class FleetCompareResponse(BaseModel):
     total_capex_high_usd: float
     total_extra_mwh: float
     sites: list[FleetSiteSummary]
+    data_source: str = "computed"
+    note: str = ""
 
 
 class SensitivityPoint(BaseModel):

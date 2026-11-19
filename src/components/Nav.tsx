@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { CalendarCheck2, CheckCircle2, ChevronDown, Menu, X } from "lucide-react";
+import { CheckCircle2, ChevronDown, Menu, X } from "lucide-react";
 import { getHealth } from "@/lib/api";
+import { REPO_URL } from "@/lib/precomputed";
 import type { HealthResponse } from "@/lib/types";
 import { Logo } from "./Logo";
-import { PilotModal } from "./PilotModal";
 
 const NAV_ITEMS = [
   { href: "/", label: "Overview", match: (p: string) => p === "/" },
@@ -47,7 +47,6 @@ export function Nav() {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
-  const [pilotOpen, setPilotOpen] = useState(false);
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [engineState, setEngineState] = useState<"checking" | "live" | "sample" | "offline">("checking");
   const popRef = useRef<HTMLDivElement | null>(null);
@@ -87,9 +86,14 @@ export function Nav() {
     };
   }, [popoverOpen]);
 
+  const basinCount = health?.datasets?.sites_count;
   const badge =
     engineState === "live"
-      ? { dot: "bg-emerald-400", text: "CBC MILP · 10 Basins", cls: "border-emerald-700/70 bg-emerald-950/70 text-emerald-200" }
+      ? {
+          dot: "bg-emerald-400",
+          text: basinCount ? `CBC MILP · ${basinCount} basins` : "CBC MILP",
+          cls: "border-emerald-700/70 bg-emerald-950/70 text-emerald-200",
+        }
       : engineState === "sample"
         ? { dot: "bg-amber-400", text: "Sample Heuristic", cls: "border-amber-700/70 bg-amber-950/70 text-amber-200" }
         : engineState === "offline"
@@ -104,9 +108,11 @@ export function Nav() {
             <Link href="/" aria-label="ThirstCap Water-Cap OS" onClick={() => setMobileOpen(false)}>
               <Logo inverted />
             </Link>
-            <span className="num hidden rounded-full border border-sky-800/70 bg-sky-950/70 px-2.5 py-0.5 text-[11px] font-medium text-sky-300 whitespace-nowrap xl:inline-block">
-              v{health?.version ?? "2.0.0"}
-            </span>
+            {health?.version ? (
+              <span className="num hidden rounded-full border border-sky-800/70 bg-sky-950/70 px-2.5 py-0.5 text-[11px] font-medium text-sky-300 whitespace-nowrap xl:inline-block">
+                v{health.version}
+              </span>
+            ) : null}
           </div>
 
           <nav className="hidden items-center gap-0.5 lg:flex" aria-label="Primary">
@@ -144,44 +150,49 @@ export function Nav() {
                   <div className="flex items-center justify-between">
                     <p className="font-display text-sm font-bold text-white">Live Engine &amp; Data Stack</p>
                     <span className="num rounded bg-sky-500/15 px-2 py-0.5 text-[10px] font-semibold text-sky-300">
-                      v{health?.version ?? "2.0.0"}
+                      {health?.version ? `v${health.version}` : "…"}
                     </span>
                   </div>
                   <dl className="mt-3 space-y-2 border-t border-slate-800 pt-3">
-                    <StatusRow label="Optimization Solver" ok={engineState === "live"} value={health?.solver ?? "PuLP-CBC"} />
+                    <StatusRow label="Optimization Solver" ok={engineState === "live"} value={health?.solver ?? "—"} />
                     <StatusRow
-                      label="EIA-930 US Grids (MISO/AZPS/PJM)"
+                      label="EIA-930 US grids (MISO/AZPS/PJM)"
                       ok={Boolean(health?.datasets?.eia930_miso && health?.datasets?.eia930_azps && health?.datasets?.eia930_pjm)}
-                      value="8,760h × 3"
+                      value={
+                        health?.datasets?.eia930_miso && health.datasets.eia930_azps && health.datasets.eia930_pjm
+                          ? "3 annual profiles"
+                          : "—"
+                      }
                     />
                     <StatusRow
-                      label="Alibaba GPU 2020 Trace"
+                      label="Alibaba GPU 2020 trace"
                       ok={Boolean(health?.datasets?.alibaba_gpu_2020)}
-                      value="759,033 jobs"
+                      value="759,033 jobs parsed"
                     />
                     <StatusRow
-                      label="Global Stress Corridors"
-                      ok={(health?.datasets?.sites_count ?? 10) >= 10}
-                      value={`${health?.datasets?.sites_count ?? 10} cities`}
+                      label="Global stress corridors"
+                      ok={(health?.datasets?.sites_count ?? 0) > 0}
+                      value={health?.datasets?.sites_count != null ? `${health.datasets.sites_count} cities` : "—"}
                     />
                     <StatusRow
-                      label="Open-Meteo Weather Fixtures"
+                      label="Open-Meteo weather fixtures"
                       ok={(health?.datasets?.fixtures_count ?? 0) > 0}
-                      value={`${health?.datasets?.fixtures_count ?? 56} series`}
+                      value={health?.datasets?.fixtures_count != null ? `${health.datasets.fixtures_count} series` : "—"}
                     />
                   </dl>
+                  <p className="mt-3 text-[10px] leading-relaxed text-slate-400">
+                    759,033 is total_jobs_parsed in the ingested Alibaba cluster-trace-gpu-v2020 profile, not a live count.
+                  </p>
                 </div>
               ) : null}
             </div>
 
-            <button
-              type="button"
-              onClick={() => setPilotOpen(true)}
+            <a
+              href={REPO_URL}
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-[#0A1E33] px-3 py-1.5 text-xs font-semibold text-slate-200 transition-colors hover:border-sky-400/60 hover:text-white whitespace-nowrap"
             >
-              <CalendarCheck2 className="h-3.5 w-3.5 text-sky-400" aria-hidden="true" />
-              Book Pilot
-            </button>
+              Source
+            </a>
 
             <Link
               href="/dashboard"
@@ -210,7 +221,7 @@ export function Nav() {
                 <span className={`h-2 w-2 rounded-full ${badge.dot}`} aria-hidden="true" />
                 <span>{badge.text}</span>
               </span>
-              <span className="num text-xs text-slate-400">v{health?.version ?? "2.0.0"}</span>
+              <span className="num text-xs text-slate-400">{health?.version ? `v${health.version}` : ""}</span>
             </div>
             <ul className="space-y-1">
               {NAV_ITEMS.map((item) => {
@@ -231,16 +242,12 @@ export function Nav() {
               })}
             </ul>
             <div className="mt-3 grid grid-cols-2 gap-2 border-t border-slate-800 pt-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileOpen(false);
-                  setPilotOpen(true);
-                }}
-                className="rounded-lg border border-slate-700 bg-[#04111D] py-2.5 text-xs font-semibold text-white"
+              <a
+                href={REPO_URL}
+                className="rounded-lg border border-slate-700 bg-[#04111D] py-2.5 text-center text-xs font-semibold text-white"
               >
-                Book Pilot
-              </button>
+                Source
+              </a>
               <Link
                 href="/dashboard"
                 onClick={() => setMobileOpen(false)}
@@ -253,7 +260,6 @@ export function Nav() {
         ) : null}
       </header>
 
-      <PilotModal open={pilotOpen} onClose={() => setPilotOpen(false)} />
     </>
   );
 }

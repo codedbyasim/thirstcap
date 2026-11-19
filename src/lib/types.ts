@@ -209,6 +209,8 @@ export type TankSizingResponse = {
   recommended_tank_gal: number;
   tank_cost_per_gal_usd: number;
   points: TankSizingPoint[];
+  data_source?: string;
+  note?: string;
 };
 
 export type FleetSiteSummary = {
@@ -244,6 +246,8 @@ export type FleetCompareResponse = {
   total_capex_high_usd: number;
   total_extra_mwh: number;
   sites: FleetSiteSummary[];
+  data_source?: string;
+  note?: string;
 };
 
 export type PlanResponse = {

@@ -4,10 +4,9 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Calendar, Droplets, Flame, Globe, Loader2, Radio, RefreshCw, Search, ShieldCheck, Wind, Zap } from "lucide-react";
-import { BENCHMARKS } from "@/data/benchmarks";
 import { geocodeCity, optimizerErrorText, runPlan } from "@/lib/api";
 import { formatCompact, formatNum, formatUsdCompact } from "@/lib/format";
-import { siteById, summerPeak2026Window, type SiteId } from "@/lib/sites";
+import { presetsFor, siteById, summerPeak2026Window, type SiteId } from "@/lib/sites";
 import type { CustomSiteInput, GeocodeResult, PlanRequest, PlanResponse } from "@/lib/types";
 
 type QuickChoice =
@@ -56,10 +55,7 @@ export function HeroSimulator() {
   const [livePlan, setLivePlan] = useState<PlanResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Instant benchmark fallback metrics for initial render before first network response lands
-  const fallbackBm = BENCHMARKS[presetSiteId];
-  const fallbackScenario = flexOn ? (tseOn ? fallbackBm.flex30_tse35 : fallbackBm.flex30) : fallbackBm.normal;
+  const seq = useRef(0);
 
   useEffect(() => {
     const q = query.trim();
@@ -77,38 +73,65 @@ export function HeroSimulator() {
     return () => window.clearTimeout(timer);
   }, [query]);
 
+  const requestedWindow = (() => {
+    if (timeframe === "live") return { start: todayIso(), end: plusDaysIso(6) };
+    if (customCity) {
+      const peak = summerPeak2026Window(customCity.lat);
+      return { start: peak.start, end: peak.end };
+    }
+    const preset = presetsFor(presetSiteId)[0];
+    return { start: preset.start, end: preset.end };
+  })();
+
   const solveHero = useCallback(async () => {
+    const id = seq.current + 1;
+    seq.current = id;
+    setLivePlan(null);
     setLoading(true);
     setError(null);
+    const isLive = timeframe === "live";
+    let start = todayIso();
+    let end = plusDaysIso(6);
+    if (!isLive) {
+      if (customCity) {
+        const peak = summerPeak2026Window(customCity.lat);
+        start = peak.start;
+        end = peak.end;
+      } else {
+        const preset = presetsFor(presetSiteId)[0];
+        start = preset.start;
+        end = preset.end;
+      }
+    }
+    const req: PlanRequest = {
+      site_id: customCity ? "custom" : presetSiteId,
+      start,
+      end,
+      flexible_share: 0.2,
+      tank_gallons: 40_000,
+      cap_ratio: 0.78,
+      flex_event: flexOn,
+      flex_tighten: 0.3,
+      foresight: isLive ? "live_forecast" : "perfect",
+      live_days: 7,
+      plant_model: "physical",
+      it_capacity_mw: 100,
+      coc: 4.0,
+      reclaimed_water_share: flexOn && tseOn ? 0.35 : 0,
+      ...(customCity ? { custom_site: customCity } : {}),
+    };
     try {
-      const lat = customCity ? customCity.lat : siteById(presetSiteId).lat;
-      const peakWin = summerPeak2026Window(lat);
-      const isLive = timeframe === "live";
-
-      const req: PlanRequest = {
-        site_id: customCity ? "custom" : presetSiteId,
-        start: isLive ? todayIso() : peakWin.start,
-        end: isLive ? plusDaysIso(6) : peakWin.end,
-        flexible_share: 0.2,
-        tank_gallons: 40_000,
-        cap_ratio: 0.78,
-        flex_event: flexOn,
-        flex_tighten: 0.3,
-        foresight: isLive ? "live_forecast" : "perfect",
-        live_days: 7,
-        plant_model: "physical",
-        it_capacity_mw: 100,
-        coc: 4.0,
-        reclaimed_water_share: flexOn && tseOn ? 0.35 : 0,
-        ...(customCity ? { custom_site: customCity } : {}),
-      };
-
       const res = await runPlan(req);
+      if (seq.current !== id) return;
+      const sameSite = customCity ? res.meta.site_id === "custom" : res.meta.site_id === presetSiteId;
+      if (!sameSite) return;
       setLivePlan(res);
     } catch (err: unknown) {
+      if (seq.current !== id) return;
+      setLivePlan(null);
       setError(optimizerErrorText(err, "Live solve unavailable."));
     } finally {
-      setLoading(false);
+      if (seq.current === id) setLoading(false);
     }
   }, [customCity, presetSiteId, timeframe, flexOn, tseOn]);
 
@@ -123,39 +146,49 @@ export function HeroSimulator() {
     };
   }, [solveHero]);
 
+  const registrySite = customCity ? null : siteById(presetSiteId);
   const activeName = customCity
     ? customCity.name
-    : `${siteById(presetSiteId).name}, ${siteById(presetSiteId).country}`;
+    : `${registrySite?.name ?? ""}, ${registrySite?.country ?? ""}`;
 
-  const biz = livePlan?.business_impact;
+  const planMatches =
+    livePlan != null &&
+    (customCity ? livePlan.meta.site_id === "custom" : livePlan.meta.site_id === presetSiteId);
+  const plan = planMatches ? livePlan : null;
+  const biz = plan?.business_impact;
   const reclaimedRatio = flexOn && tseOn ? 0.35 : 0;
 
-  const daysData = livePlan
-    ? livePlan.days.map((d) => ({
+  const daysData = plan
+    ? plan.days.map((d) => ({
         d: d.date.slice(5),
         b: Math.round(d.baseline_gal),
         o: Math.round(d.optimized_gal),
         c: Math.round(d.cap_gal),
       }))
-    : fallbackScenario.days;
+    : [];
 
-  const firmCap = livePlan ? Math.round(livePlan.meta.cap_gal) : (daysData[0]?.c ?? fallbackScenario.opt_peak);
-  const rawMax = Math.max(1, ...daysData.map((d) => Math.max(d.b, d.o, firmCap)));
+  const firmCap = plan ? Math.round(plan.meta.cap_gal) : null;
+  const rawMax = daysData.length ? Math.max(1, ...daysData.map((d) => Math.max(d.b, d.o, firmCap ?? 0))) : 1;
   const maxVal = rawMax * 1.1;
-  const capPct = Math.max(6, Math.min(95, (firmCap / maxVal) * 100));
+  const capPct = firmCap == null ? 0 : Math.max(6, Math.min(95, (firmCap / maxVal) * 100));
 
-  const coolToday = livePlan ? livePlan.baseline.peak_day_gal < 100 : false;
-  const peakCutPct = livePlan ? Number((livePlan.optimized.water_capacity_impact * 100).toFixed(1)) : fallbackScenario.cut_pct;
-  const shield = livePlan ? (biz?.permit_shield_score ?? 85) : fallbackScenario.shield;
-  const eedGrade = livePlan ? (biz?.eu_eed_rating ?? "A") : fallbackScenario.eed;
-  const wriScore = livePlan ? (biz?.wri_stress_score ?? 60) : siteById(presetSiteId).wriScore;
-  const potablePeak = livePlan ? (biz?.potable_peak_day_gal ?? livePlan.optimized.peak_day_gal) : fallbackScenario.potable_peak;
-  const roi5y = livePlan ? (biz?.five_year_net_roi_usd ?? 0) : fallbackScenario.roi5y;
-  const capexLow = livePlan ? (biz?.avoided_capex_low_usd ?? 0) : fallbackScenario.capex_low;
-  const capexHigh = livePlan ? (biz?.avoided_capex_high_usd ?? 0) : fallbackScenario.capex_high;
-  const homesProtected = livePlan ? (biz?.households_daily_water_protected ?? 0) : fallbackScenario.homes;
-  const gridPeakMw = livePlan ? livePlan.optimized.grid_peak_mw : fallbackScenario.grid_peak_mw;
-  const windowStr = livePlan ? `${livePlan.meta.start} to ${livePlan.meta.end}` : "Live 7-Day Forecast";
+  const coolToday = plan ? plan.baseline.peak_day_gal < 100 : false;
+  const peakCutPct = plan ? Number((plan.optimized.water_capacity_impact * 100).toFixed(1)) : null;
+  const shield = biz?.permit_shield_score;
+  const eedGrade = biz?.eu_eed_rating;
+  const wriScore = biz?.wri_stress_score ?? registrySite?.wriScore ?? null;
+  const framework = biz?.regulatory_framework ?? registrySite?.regulation ?? null;
+  const tariff = biz?.water_tariff_usd_per_kgal ?? registrySite?.tariffUsdPerKgal ?? null;
+  const potablePeak = plan ? (biz?.potable_peak_day_gal ?? plan.optimized.peak_day_gal) : null;
+  const roi5y = biz?.five_year_net_roi_usd;
+  const capexLow = biz?.avoided_capex_low_usd;
+  const capexHigh = biz?.avoided_capex_high_usd;
+  const homesProtected = biz?.households_daily_water_protected;
+  const gridPeakMw = plan ? plan.optimized.grid_peak_mw : null;
+  const solvedWindow = plan ? `${plan.meta.start} to ${plan.meta.end}` : null;
+  const requestedLabel = `${requestedWindow.start} to ${requestedWindow.end}`;
+  const windowStr =
+    solvedWindow && solvedWindow !== requestedLabel ? `${solvedWindow} · requested ${requestedLabel}` : solvedWindow ?? requestedLabel;
 
   const dashboardHref = customCity
     ? `/dashboard?mode=${timeframe === "live" ? "live" : "peak2026"}&custom_name=${encodeURIComponent(customCity.name)}&lat=${customCity.lat}&lon=${customCity.lon}&tz=${encodeURIComponent(customCity.timezone)}&country=${encodeURIComponent(customCity.country ?? "")}`
@@ -177,23 +210,24 @@ export function HeroSimulator() {
           </div>
           <p className="mt-1 truncate font-display text-lg font-bold text-white">{activeName}</p>
           <p className="text-xs text-slate-400">
-            WRI Stress <span className="num font-semibold text-amber-300">{wriScore}/100</span> ·{" "}
-            <span className="truncate">{biz?.regulatory_framework ?? siteById(presetSiteId).regulation}</span>
+            WRI Stress{" "}
+            <span className="num font-semibold text-amber-300">{wriScore == null ? "—" : `${wriScore}/100`}</span>
+            {framework ? ` · ${framework}` : loading ? " · solving this site" : ""}
           </p>
         </div>
         <div className="flex items-center gap-1.5">
           <span
             className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-[11px] font-semibold ${
-              shield >= 80
+              shield != null && shield >= 80
                 ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-300"
                 : "border-sky-500/40 bg-sky-500/15 text-sky-300"
             }`}
           >
             <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-            Shield {shield}/100
+            {shield == null ? "Shield —" : `Shield ${shield}/100`}
           </span>
           <span className="rounded-full border border-slate-700 bg-[#04111D] px-2.5 py-1 font-mono text-[11px] font-bold text-sky-300">
-            EED {eedGrade}
+            {eedGrade ? `EED ${eedGrade}` : "EED —"}
           </span>
         </div>
       </div>
@@ -351,9 +385,12 @@ export function HeroSimulator() {
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
           <span className="flex items-center gap-1.5">
             {loading && <Loader2 className="h-3 w-3 animate-spin text-sky-400" />}
-            Firm Cap: <strong className="num text-emerald-400">{formatCompact(firmCap)} gal/day</strong>
+            Firm Cap:{" "}
+            <strong className="num text-emerald-400">
+              {firmCap == null ? "—" : `${formatCompact(firmCap)} gal/day`}
+            </strong>
           </span>
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2.5">
             <span className="inline-flex items-center gap-1">
               <span className="h-2 w-2 rounded-sm bg-orange-500" />
               Baseline
@@ -368,10 +405,28 @@ export function HeroSimulator() {
                 TSE
               </span>
             )}
+            <span className="inline-flex items-center gap-1">
+              <span className="h-0 w-3 border-t border-dashed border-emerald-400" />
+              Cap
+            </span>
           </div>
         </div>
 
-        {coolToday ? (
+        {!plan ? (
+          <div className="mt-2 space-y-2" aria-hidden="true">
+            <div className="flex h-36 items-end gap-2">
+              {Array.from({ length: 7 }).map((_, i) => (
+                <div key={i} className="flex flex-1 flex-col justify-end gap-1">
+                  <div className="h-24 animate-pulse rounded-t bg-slate-800" />
+                  <div className="mx-auto h-2 w-6 animate-pulse rounded bg-slate-800" />
+                </div>
+              ))}
+            </div>
+            <p className="text-center text-[11px] text-slate-400">
+              Solving {activeName.split(",")[0]} for {requestedLabel}…
+            </p>
+          </div>
+        ) : coolToday ? (
           <div className="flex h-36 flex-col items-center justify-center gap-2 rounded-lg border border-sky-800/50 bg-sky-950/30 px-4 text-center">
             <Wind className="h-6 w-6 text-sky-400" aria-hidden="true" />
             <p className="text-xs font-semibold text-white">
@@ -395,7 +450,7 @@ export function HeroSimulator() {
               style={{ bottom: `calc(20px + ${(capPct / 100) * 108}px)` }}
             >
               <span className="num absolute -top-4 right-0 rounded bg-emerald-950/95 px-1.5 py-0.5 text-[9.5px] font-semibold text-emerald-300 ring-1 ring-emerald-500/40">
-                CAP {formatCompact(firmCap)}
+                CAP {formatCompact(firmCap ?? 0)}
               </span>
             </div>
 
@@ -447,29 +502,35 @@ export function HeroSimulator() {
         <div className="rounded-lg border border-slate-800 bg-[#04111D] p-2.5">
           <p className="text-[10.5px] font-medium text-slate-400">Peak Cut</p>
           <p className="num font-display text-lg font-bold text-emerald-400">
-            {coolToday ? "0 gal" : `-${formatNum(peakCutPct, 1)}%`}
+            {!plan ? "—" : coolToday ? "0 gal" : `-${formatNum(peakCutPct ?? 0, 1)}%`}
           </p>
-          <p className="num text-[10.5px] text-slate-400">{formatCompact(potablePeak)} pot.</p>
+          <p className="num text-[10.5px] text-slate-400">{potablePeak == null ? "—" : `${formatCompact(potablePeak)} pot.`}</p>
         </div>
         <div className="rounded-lg border border-slate-800 bg-[#04111D] p-2.5">
           <p className="text-[10.5px] font-medium text-slate-400">5-Yr Net ROI</p>
-          <p className="num font-display text-lg font-bold text-sky-300">{formatUsdCompact(roi5y)}</p>
-          <p className="num text-[10.5px] text-slate-400">${(biz?.water_tariff_usd_per_kgal ?? 5.5).toFixed(2)}/kgal</p>
+          <p className="num font-display text-lg font-bold text-sky-300">{roi5y == null ? "—" : formatUsdCompact(roi5y)}</p>
+          <p className="num text-[10.5px] text-slate-400">{tariff == null ? "—" : `$${tariff.toFixed(2)}/kgal`}</p>
         </div>
         <div className="rounded-lg border border-slate-800 bg-[#04111D] p-2.5">
           <p className="text-[10.5px] font-medium text-slate-400">CAPEX Avoided</p>
           <p className="num font-display text-sm font-bold text-white sm:text-base">
-            {formatUsdCompact(capexLow)}–{formatUsdCompact(capexHigh)}
+            {capexLow == null || capexHigh == null ? "—" : `${formatUsdCompact(capexLow)}–${formatUsdCompact(capexHigh)}`}
           </p>
-          <p className="num text-[10.5px] text-slate-400">{homesProtected.toLocaleString("en-US")} homes/d</p>
+          <p className="num text-[10.5px] text-slate-400">
+            {homesProtected == null ? "—" : `${homesProtected.toLocaleString("en-US")} homes/d`}
+          </p>
         </div>
         <div className="rounded-lg border border-slate-800 bg-[#04111D] p-2.5">
           <p className="text-[10.5px] font-medium text-slate-400">Grid Peak Add</p>
           <p className="num inline-flex items-center gap-1 font-display text-lg font-bold text-white">
             <Zap className="h-3.5 w-3.5 text-emerald-400" aria-hidden="true" />
-            {gridPeakMw} MW
+            {gridPeakMw == null ? "—" : `${gridPeakMw} MW`}
           </p>
-          <p className="num truncate text-[10.5px] text-slate-400">{livePlan?.meta.solve_time_ms ?? 350}ms CBC</p>
+          <p className="num truncate text-[10.5px] text-slate-400">
+            {typeof plan?.meta.solve_time_ms === "number"
+              ? `${plan.meta.solve_time_ms.toLocaleString("en-US")} ms CBC`
+              : "waiting for solve"}
+          </p>
         </div>
       </div>
 

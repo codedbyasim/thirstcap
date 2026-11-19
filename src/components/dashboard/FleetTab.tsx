@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Calendar, CheckCircle2, Droplets, Globe, Radio, ShieldCheck, Users } from "lucide-react";
+import { ArrowUpRight, Calendar, CheckCircle2, Droplets, Globe, Radio, RefreshCw, ShieldCheck, Users } from "lucide-react";
 import { optimizerErrorText, runFleetCompare } from "@/lib/api";
 import { formatGal, formatNum, formatUsdCompact } from "@/lib/format";
+import { fleetSnapshot } from "@/lib/precomputed";
 import type { HorizonMode } from "@/components/dashboard/ControlPanel";
 import type { SiteId } from "@/lib/sites";
 import type { FleetCompareResponse, PlanRequest } from "@/lib/types";
@@ -21,6 +22,8 @@ export function FleetTab({
   const [fleet, setFleet] = useState<FleetCompareResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [elapsed, setElapsed] = useState(0);
+  const [retry, setRetry] = useState(0);
 
   const reqKey = JSON.stringify({
     fleetHorizon,
@@ -38,28 +41,38 @@ export function FleetTab({
 
   useEffect(() => {
     let cancel = false;
-    setLoading(true);
-    setError(null);
     const fleetReq: PlanRequest = {
       ...request,
       foresight: fleetHorizon === "live" ? "live_forecast" : "perfect",
       live_days: 7,
     };
+    const snapshot = fleetSnapshot(fleetHorizon, fleetReq);
+    setFleet(snapshot);
+    setLoading(true);
+    setError(null);
+    setElapsed(0);
+    const started = Date.now();
+    const timer = window.setInterval(() => setElapsed(Math.floor((Date.now() - started) / 1000)), 500);
     runFleetCompare(fleetReq)
       .then((res) => {
         if (!cancel) setFleet(res);
       })
       .catch((err: unknown) => {
-        if (!cancel) setError(optimizerErrorText(err, "Fleet comparison failed."));
+        if (!cancel) {
+          setError(optimizerErrorText(err, "Fleet comparison failed."));
+          if (!snapshot) setFleet(null);
+        }
       })
       .finally(() => {
         if (!cancel) setLoading(false);
+        window.clearInterval(timer);
       });
     return () => {
       cancel = true;
+      window.clearInterval(timer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reqKey]);
+  }, [reqKey, retry]);
 
   return (
     <div className="space-y-4">
@@ -102,15 +115,39 @@ export function FleetTab({
 
       {loading && !fleet ? (
         <div className="rounded-xl border border-line bg-surface p-6">
-          <div className="h-64 animate-pulse rounded-lg bg-subtle" />
+          <div className="grid gap-3 sm:grid-cols-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-28 animate-pulse rounded-lg bg-subtle" />
+            ))}
+          </div>
           <p className="mt-3 text-center text-xs text-marine-muted">
-            Solving all 10 global stress corridors with PuLP CBC MILP…
+            Solving all 10 corridors with PuLP CBC… {elapsed}s elapsed
           </p>
         </div>
       ) : null}
 
+      {loading && fleet ? (
+        <p className="text-center text-[11px] text-marine-muted">Checking the solver… {elapsed}s</p>
+      ) : null}
+
       {error ? (
-        <div className="rounded-xl border border-flex/40 bg-flex-tint/40 p-4 text-xs text-flex">{error}</div>
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-flex/40 bg-flex-tint/40 p-4 text-xs text-flex">
+          <p>{error}</p>
+          <button
+            type="button"
+            onClick={() => setRetry((n) => n + 1)}
+            className="inline-flex items-center gap-1 rounded-md bg-flex px-2.5 py-1 font-semibold text-white"
+          >
+            <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+            Retry
+          </button>
+        </div>
+      ) : null}
+
+      {fleet?.note ? (
+        <p className="rounded-xl border border-line bg-subtle px-4 py-2.5 text-[11px] leading-relaxed text-marine-muted">
+          {fleet.note}
+        </p>
       ) : null}
 
       {fleet ? (
