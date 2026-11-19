@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Calendar, CheckCircle2, Droplets, Globe, Radio, ShieldCheck, Users } from "lucide-react";
-import { runFleetCompare } from "@/lib/api";
+import { optimizerErrorText, runFleetCompare } from "@/lib/api";
 import { formatGal, formatNum, formatUsdCompact } from "@/lib/format";
 import type { HorizonMode } from "@/components/dashboard/ControlPanel";
 import type { SiteId } from "@/lib/sites";
@@ -50,7 +50,7 @@ export function FleetTab({
         if (!cancel) setFleet(res);
       })
       .catch((err: unknown) => {
-        if (!cancel) setError(err instanceof Error ? err.message : "Fleet comparison failed.");
+        if (!cancel) setError(optimizerErrorText(err, "Fleet comparison failed."));
       })
       .finally(() => {
         if (!cancel) setLoading(false);

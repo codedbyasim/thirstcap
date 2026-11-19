@@ -12,7 +12,7 @@ import { KpiGrid } from "@/components/dashboard/KpiGrid";
 import { PeakCapTab } from "@/components/dashboard/PeakCapTab";
 import { ProtocolTab } from "@/components/dashboard/ProtocolTab";
 import { TankSizingTab } from "@/components/dashboard/TankSizingTab";
-import { downloadPlanCsv, runPlan, runSensitivityCall, usingMock } from "@/lib/api";
+import { downloadPlanCsv, isWeatherRateLimited, optimizerErrorText, runPlan, runSensitivityCall, usingMock } from "@/lib/api";
 import { PRESETS, SITES, presetsFor, siteById, summerPeak2026Window, type SiteId } from "@/lib/sites";
 import type { CustomSiteInput, PlanRequest, PlanResponse, PlantModelKind, SensitivityResponse } from "@/lib/types";
 
@@ -104,6 +104,7 @@ export function Dashboard() {
   const [running, setRunning] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [rateLimited, setRateLimited] = useState(false);
   const [sensError, setSensError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -200,6 +201,7 @@ export function Dashboard() {
   const executeSolve = useCallback(async (req: PlanRequest, nextTighten: number) => {
     setRunning(true);
     setError(null);
+    setRateLimited(false);
     try {
       const res = await runPlan(req);
       setPlan(res);
@@ -209,7 +211,8 @@ export function Dashboard() {
       setDroughtTighten(nextTighten);
       setStale(false);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Optimizer request failed.");
+      setRateLimited(isWeatherRateLimited(err));
+      setError(optimizerErrorText(err, "Optimizer request failed."));
     } finally {
       setRunning(false);
     }
@@ -234,7 +237,7 @@ export function Dashboard() {
           }
         })
         .catch((err: unknown) => {
-          if (!cancel) setSensError(err instanceof Error ? err.message : "Sensitivity curve failed.");
+          if (!cancel) setSensError(optimizerErrorText(err, "Sensitivity curve failed."));
         });
     }, usingMock() ? 0 : 400);
     return () => {
@@ -454,7 +457,7 @@ export function Dashboard() {
                 className="inline-flex items-center gap-1.5 rounded-lg bg-flex px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-800"
               >
                 <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
-                Retry Solve
+                {rateLimited ? "Retry" : "Retry Solve"}
               </button>
             </div>
           ) : null}

@@ -14,7 +14,7 @@ import {
 } from "recharts";
 import { CheckCircle2, Database } from "lucide-react";
 import { tooltipStyle } from "@/components/charts/tooltip";
-import { runTankSizing } from "@/lib/api";
+import { optimizerErrorText, runTankSizing } from "@/lib/api";
 import { formatGal, formatUsd, formatUsdCompact } from "@/lib/format";
 import type { PlanRequest, TankSizingResponse } from "@/lib/types";
 
@@ -53,7 +53,7 @@ export function TankSizingTab({
         if (!cancel) setData(res);
       })
       .catch((err: unknown) => {
-        if (!cancel) setError(err instanceof Error ? err.message : "Tank sizing sweep failed.");
+        if (!cancel) setError(optimizerErrorText(err, "Tank sizing sweep failed."));
       })
       .finally(() => {
         if (!cancel) setLoading(false);

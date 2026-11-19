@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import asyncio
+import os
+import sys
+from contextlib import asynccontextmanager, suppress
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,12 +17,31 @@ from app.errors import DomainError
 from app.routers import health, plan
 
 
+@asynccontextmanager
+async def _lifespan(_app: FastAPI):
+    """Warm live forecasts in the background. Startup does not wait on Open-Meteo."""
+    task: asyncio.Task | None = None
+    disabled = os.environ.get("THIRSTCAP_WEATHER_WARMUP", "1").strip().lower() in {"0", "false", "no"}
+    if not disabled and "pytest" not in sys.modules:
+        from app.services.weather import warm_live_forecasts
+
+        task = asyncio.create_task(warm_live_forecasts())
+    try:
+        yield
+    finally:
+        if task is not None:
+            task.cancel()
+            with suppress(asyncio.CancelledError):
+                await task
+
+
 def create_app() -> FastAPI:
     settings = get_settings()
     app = FastAPI(
         title=settings.app_name,
         version=settings.version,
         description="72-hour rolling-horizon MILP optimizer for data-center peak-day water capacity capping.",
+        lifespan=_lifespan,
     )
 
     origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
