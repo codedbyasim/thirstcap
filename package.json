@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "ThirstCap — a 72-hour planner that caps data-center peak-day water.",
+  "author": "Muhammad Asim Hanif <https://github.com/codedbyasim>",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
