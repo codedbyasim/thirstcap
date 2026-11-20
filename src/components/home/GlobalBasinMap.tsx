@@ -6,10 +6,14 @@ import { useEffect, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import { ArrowRight, Globe2, Loader2, Search, ShieldCheck } from "lucide-react";
 import { geocodeCity, runPlan } from "@/lib/api";
-import { formatCompact, formatNum, formatUsdCompact } from "@/lib/format";
+import { formatCompact, formatGal, formatNum, formatUsdCompact } from "@/lib/format";
 import { fleetSite } from "@/lib/precomputed";
 import { SITES, summerPeak2026Window, type SiteId } from "@/lib/sites";
 import type { CustomSiteInput, GeocodeResult, PlanResponse } from "@/lib/types";
+
+function peakShavedGal(row: { baseline_peak_gal: number; optimized_peak_gal: number }): number {
+  return Math.max(0, row.baseline_peak_gal - row.optimized_peak_gal);
+}
 
 const WorldCorridorMap = dynamic(
   () => import("@/components/home/WorldCorridorMap").then((mod) => mod.WorldCorridorMap),
@@ -262,12 +266,12 @@ export function GlobalBasinMap() {
 
                 <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4">
                   <div>
-                    <dt className="text-[11px] text-marine-muted">2026 Peak Cut</dt>
+                    <dt className="text-[11px] text-marine-muted">Shaved vs baseline</dt>
                     <dd className="num font-display text-lg font-bold text-emerald-700">
-                      {corridor ? `-${formatNum(corridor.peak_cut_pct, 1)}%` : "—"}
+                      {corridor ? `${formatGal(peakShavedGal(corridor))} gal` : "—"}
                     </dd>
-                    <dd className="num text-[11px] text-marine-muted">
-                      {corridor ? `${formatCompact(corridor.optimized_peak_gal)} gal peak` : "Precomputed fleet"}
+                    <dd className="text-[11px] text-marine-muted">
+                      This site’s uncontrolled peak day minus its CBC peak
                     </dd>
                   </div>
                   <div>
@@ -346,8 +350,8 @@ export function GlobalBasinMap() {
                 {s.country} · {s.grid}
               </p>
               <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-2 text-[11px]">
-                <span className="num font-semibold text-emerald-700">
-                  {row ? `-${formatNum(row.peak_cut_pct, 1)}% cap` : "—"}
+                <span className="num font-semibold text-emerald-700" title="Peak-day gallons shaved versus this site's uncontrolled baseline">
+                  {row ? `${formatCompact(peakShavedGal(row))} gal shaved` : "—"}
                 </span>
                 <span className="num font-semibold text-marine-ink">
                   {row ? `${formatUsdCompact(row.five_year_net_roi_usd ?? 0)} ROI` : "—"}
