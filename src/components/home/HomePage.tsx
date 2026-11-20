@@ -480,7 +480,7 @@ export function HomePage() {
 
           <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-slate-800 pt-6 text-xs text-slate-400">
             <p>
-              Built by Team ThirstCap (NUTECH Islamabad) · Xylem Global Student Innovation Challenge 2026 — Problem Statement #1: Water Quantity
+              Solo entry by Muhammad Asim Hanif (@codedbyasim), NUTECH Islamabad · Xylem Global Student Innovation Challenge 2026, University Track — Problem Statement #1: Water Quantity
             </p>
             <p className="font-mono text-[11px]">PuLP CBC · EIA-930 (MISO/AZPS/PJM) · Open-Meteo · Alibaba PAI</p>
           </div>

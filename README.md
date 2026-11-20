@@ -2,7 +2,10 @@
 
 **Real-time 2026 global data-center water-cap optimizer and commercial control plane that works for every city on Earth (`200,000+` geocoded locations), pairs live 7-day weather forecasts with 2026 peak summer stress testing, unlocks stalled municipal permits, and enforces EU EED (2024/1364) A–G compliance.**
 
-Built by Asim, Maira, Malaika, and Tayyab (Software Engineering, NUTECH Islamabad) for the [Xylem Global Student Innovation Challenge 2026](https://xyleminnovationchallenge-platform.bemyapp.com/) — University Track, Problem Statement #1: Water Quantity.
+Solo entry by Muhammad Asim Hanif ([@codedbyasim](https://github.com/codedbyasim)), Software Engineering, National University of Technology (NUTECH), Islamabad, for the [Xylem Global Student Innovation Challenge 2026](https://xyleminnovationchallenge-platform.bemyapp.com/) — University Track, Problem Statement #1: Water Quantity.
+
+Live site: [https://thirstcap.vercel.app](https://thirstcap.vercel.app)  
+API: [https://thirstcap-api.onrender.com](https://thirstcap-api.onrender.com)
 
 ---
 
@@ -92,5 +95,5 @@ Open [http://localhost:3000](http://localhost:3000) for the B2B commercial overv
 
 ## Deploy to Production (Render + Vercel)
 
-1. **Backend on Render:** Point a Web Service at `backend/` using [backend/render.yaml](backend/render.yaml). Set `CORS_ORIGINS` in the Render dashboard to your Vercel URL (no trailing slash). Verify `/v1/health` returns `{"status":"ok","sample":false,"datasets":{"sites_count":10}}`.
-2. **Frontend on Vercel:** Import the repository root (`package.json`, Next.js preset). Set `NEXT_PUBLIC_API_URL` to your Render service origin and `NEXT_PUBLIC_USE_MOCK=false`, then deploy.
+1. **Backend on Render:** Point a Web Service at `backend/` using [backend/render.yaml](backend/render.yaml). The live API is [https://thirstcap-api.onrender.com](https://thirstcap-api.onrender.com). Set `CORS_ORIGINS` in the Render dashboard to `https://thirstcap.vercel.app` (no trailing slash). Verify `/v1/health` returns `{"status":"ok","sample":false,"datasets":{"sites_count":10}}`.
+2. **Frontend on Vercel:** Import the repository root (`package.json`, Next.js preset). The live site is [https://thirstcap.vercel.app](https://thirstcap.vercel.app). Set `NEXT_PUBLIC_API_URL` to `https://thirstcap-api.onrender.com` and `NEXT_PUBLIC_USE_MOCK=false`, then deploy.
